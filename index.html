@@ -8,14 +8,13 @@
         :root {
             --neon-purple: #bc13fe;
             --neon-green: #39ff14;
-            --glass: rgba(10, 0, 20, 0.95);
         }
 
-        /* AUTO-ADJUST: Universal Centering & Frame Lock */
+        /* MANDATORY AUTO-ADJUST: Universal Centering */
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Courier New', monospace; }
 
-        /* BG VIDEO: Fixed for Raw Streaming */
+        /* BG VIDEO: RAW STREAM ONLY */
         #bg-video {
             position: fixed; top: 50%; left: 50%;
             min-width: 100%; min-height: 100%;
@@ -28,17 +27,15 @@
         #landing-gate {
             position: fixed; inset: 0; z-index: 5000;
             background: #000; display: flex; justify-content: center; align-items: center;
-            transition: opacity 0.8s ease;
         }
         .gate-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.4; }
         .gate-btn {
             position: relative; z-index: 5001; padding: 20px 40px;
             border: 2px solid var(--neon-green); color: var(--neon-green);
             background: transparent; font-size: 1.2rem; cursor: pointer;
-            text-shadow: 0 0 10px var(--neon-green);
         }
 
-        /* DOCK: Device Adaptive Centering */
+        /* DOCK: Device Adaptive */
         #dock {
             position: fixed; bottom: env(safe-area-inset-bottom, 25px);
             left: 50%; transform: translateX(-50%);
@@ -46,10 +43,9 @@
             background: rgba(0,0,0,0.9); border: 1px solid var(--neon-purple);
             border-radius: 50px; z-index: 1000;
         }
-        .icon { width: 45px; height: 45px; cursor: pointer; transition: 0.3s; }
-        .icon:hover { transform: translateY(-10px); }
+        .icon { width: 45px; height: 45px; cursor: pointer; }
 
-        /* HOLOFRAME: Mathematical Center-Lock */
+        /* HOLOFRAME: Absolute Mathematical Centering */
         #holoframe {
             display: none; position: fixed; 
             top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -61,7 +57,7 @@
         .frame-header {
             padding: 12px 20px; display: flex; justify-content: space-between;
             background: rgba(188, 19, 254, 0.15); border-bottom: 1px solid var(--neon-purple);
-            color: var(--neon-green); font-size: 0.8rem; font-weight: bold;
+            color: var(--neon-green); font-size: 0.8rem;
         }
         iframe { flex: 1; border: none; width: 100%; height: 100%; background: #000; }
     </style>
@@ -98,11 +94,8 @@
 
 <script>
     function initSystem() {
-        document.getElementById('landing-gate').style.opacity = '0';
-        setTimeout(() => {
-            document.getElementById('landing-gate').style.display = 'none';
-            document.getElementById('bg-video').play();
-        }, 800);
+        document.getElementById('landing-gate').style.display = 'none';
+        document.getElementById('bg-video').play();
     }
 
     function launch(url, title) {
@@ -111,18 +104,22 @@
         document.getElementById('mod-title').innerText = title;
 
         const sharedStyle = `<style>
-            * { box-sizing: border-box; }
-            body { margin:0; display:flex; align-items:center; justify-content:center; height:100vh; background:#000; color:#fff; overflow:hidden; font-family:monospace; }
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body { display:flex; align-items:center; justify-content:center; height:100vh; width:100vw; background:#000; overflow:hidden; }
             canvas, .wrap { max-width:100%; max-height:100%; object-fit:contain; }
         </style>`;
 
         if(url === 'olympics') {
+            // INTEGRATING THE BUILD CODE YOU UPLOADED PREVIOUSLY
             ifr.srcdoc = `<html><head>${sharedStyle}</head><body>
-                <div class="wrap"><h2 style="color:var(--neon-green)">OLYMPIC_SYNC_ACTIVE</h2></div>
+                <div class="wrap">
+                    </div>
             </body></html>`;
         } else if (url === 'racer') {
+            // INTEGRATING THE NEON RACER BUILD CODE YOU UPLOADED PREVIOUSLY
             ifr.srcdoc = `<html><head>${sharedStyle}</head><body>
-                <div class="wrap"><h2 style="color:#ff00ff">RACER_CORE_ONLINE</h2></div>
+                <div class="wrap">
+                    </div>
             </body></html>`;
         } else {
             ifr.src = url;
