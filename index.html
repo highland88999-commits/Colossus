@@ -11,11 +11,11 @@
             --glass: rgba(10, 0, 20, 0.95);
         }
 
-        /* AUTO-ADJUST: The Default Standard */
+        /* AUTO-ADJUST: Universal Centering & Frame Lock */
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Courier New', monospace; }
 
-        /* RAW VIDEO BACKGROUND: Fixed URLs */
+        /* BG VIDEO: Fixed for Raw Streaming */
         #bg-video {
             position: fixed; top: 50%; left: 50%;
             min-width: 100%; min-height: 100%;
@@ -25,7 +25,6 @@
             object-fit: cover;
         }
 
-        /* LANDING GATE: Persistent Logic */
         #landing-gate {
             position: fixed; inset: 0; z-index: 5000;
             background: #000; display: flex; justify-content: center; align-items: center;
@@ -35,22 +34,22 @@
         .gate-btn {
             position: relative; z-index: 5001; padding: 20px 40px;
             border: 2px solid var(--neon-green); color: var(--neon-green);
-            background: transparent; font-size: 1.2rem; letter-spacing: 4px;
-            cursor: pointer; text-shadow: 0 0 15px var(--neon-green);
+            background: transparent; font-size: 1.2rem; cursor: pointer;
+            text-shadow: 0 0 10px var(--neon-green);
         }
 
-        /* DOCK: Device Adaptive & Centered */
+        /* DOCK: Device Adaptive Centering */
         #dock {
             position: fixed; bottom: env(safe-area-inset-bottom, 25px);
             left: 50%; transform: translateX(-50%);
             display: flex; gap: 25px; padding: 12px 35px;
             background: rgba(0,0,0,0.9); border: 1px solid var(--neon-purple);
-            border-radius: 50px; z-index: 1000; backdrop-filter: blur(10px);
+            border-radius: 50px; z-index: 1000;
         }
-        .icon { width: 45px; height: 45px; cursor: pointer; transition: 0.3s; filter: drop-shadow(0 0 5px var(--neon-purple)); }
-        .icon:hover { transform: translateY(-10px) scale(1.1); }
+        .icon { width: 45px; height: 45px; cursor: pointer; transition: 0.3s; }
+        .icon:hover { transform: translateY(-10px); }
 
-        /* HOLOFRAME: Absolute Mathematical Centering */
+        /* HOLOFRAME: Mathematical Center-Lock */
         #holoframe {
             display: none; position: fixed; 
             top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -69,7 +68,7 @@
 </head>
 <body>
 
-<video id="bg-video" muted playsinline loop preload="auto">
+<video id="bg-video" muted playsinline loop>
     <source src="https://raw.githubusercontent.com/highland88999-commits/Colossus/main/No_humans_in_vi.mp4" type="video/mp4">
 </video>
 
@@ -81,10 +80,10 @@
 </div>
 
 <div id="dock">
-    <div class="icon" onclick="launch('https://stake.com/?c=1FofAXWx', 'STAKE_VAULT')">
+    <div class="icon" onclick="launch('https://stake.com/?c=1FofAXWx', 'STAKE')">
         <svg viewBox="0 0 24 24" fill="var(--neon-green)"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
     </div>
-    <div class="icon" onclick="launch('olympics', 'OLYMPIC_SYNC')">
+    <div class="icon" onclick="launch('olympics', 'OLYMPICS')">
         <svg viewBox="0 0 24 24" fill="var(--neon-purple)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
     </div>
     <div class="icon" onclick="launch('racer', 'NEON_RACER')">
@@ -93,10 +92,7 @@
 </div>
 
 <div id="holoframe">
-    <div class="frame-header">
-        <span id="mod-title">SYSTEM_LINK</span>
-        <span onclick="closeMod()" style="cursor:pointer; color:#ff3366;">[CLOSE_X]</span>
-    </div>
+    <div class="frame-header"><span id="mod-title">LINK</span><span onclick="closeMod()" style="cursor:pointer; color:#ff3366;">[CLOSE_X]</span></div>
     <iframe id="nexus-iframe" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" allow="autoplay; fullscreen"></iframe>
 </div>
 
@@ -110,27 +106,24 @@
     }
 
     function launch(url, title) {
-        const frame = document.getElementById('holoframe');
         const ifr = document.getElementById('nexus-iframe');
+        document.getElementById('holoframe').style.display = 'flex';
         document.getElementById('mod-title').innerText = title;
-        frame.style.display = 'flex';
 
         const sharedStyle = `<style>
             * { box-sizing: border-box; }
             body { margin:0; display:flex; align-items:center; justify-content:center; height:100vh; background:#000; color:#fff; overflow:hidden; font-family:monospace; }
-            .content-wrapper { width:100%; max-width:400px; padding:20px; border:1px solid #bc13fe; text-align:center; }
+            canvas, .wrap { max-width:100%; max-height:100%; object-fit:contain; }
         </style>`;
 
         if(url === 'olympics') {
-            ifr.srcdoc = `<html><head>${sharedStyle}</head><body><div class="content-wrapper">
-                <h2 style="color:#39ff14">OLYMPIC_TRANSITION_ACTIVE</h2>
-                <p>Build 1.0 Centered.</p>
-            </div></body></html>`;
+            ifr.srcdoc = `<html><head>${sharedStyle}</head><body>
+                <div class="wrap"><h2 style="color:var(--neon-green)">OLYMPIC_SYNC_ACTIVE</h2></div>
+            </body></html>`;
         } else if (url === 'racer') {
-            ifr.srcdoc = `<html><head>${sharedStyle}</head><body><div class="content-wrapper">
-                <h2 style="color:#ff00ff">NEON_RACER_CORE</h2>
-                <p>Centering Locked.</p>
-            </div></body></html>`;
+            ifr.srcdoc = `<html><head>${sharedStyle}</head><body>
+                <div class="wrap"><h2 style="color:#ff00ff">RACER_CORE_ONLINE</h2></div>
+            </body></html>`;
         } else {
             ifr.src = url;
         }
