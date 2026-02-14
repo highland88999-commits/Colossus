@@ -14,7 +14,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Courier New', monospace; }
 
-        /* THE FIX: TRUE RAW VIDEO STREAMING */
+        /* VIDEO BACKGROUND - RAW LINK FIX */
         #bg-video {
             position: fixed; top: 50%; left: 50%;
             min-width: 100%; min-height: 100%;
@@ -22,7 +22,6 @@
             transform: translate(-50%, -50%);
             filter: brightness(0.4) contrast(1.2);
             object-fit: cover;
-            background: #000;
         }
 
         /* LANDING GATE */
@@ -39,18 +38,18 @@
             cursor: pointer; text-shadow: 0 0 15px var(--neon-green);
         }
 
-        /* DOCK - ADAPTIVE TO ALL PHONES */
+        /* DOCK - ADAPTIVE */
         #dock {
             position: fixed; bottom: env(safe-area-inset-bottom, 25px);
             left: 50%; transform: translateX(-50%);
             display: flex; gap: 25px; padding: 12px 35px;
             background: rgba(0,0,0,0.9); border: 1px solid var(--neon-purple);
-            border-radius: 50px; z-index: 1000; backdrop-filter: blur(10px);
+            border-radius: 50px; z-index: 1000;
         }
-        .icon { width: 45px; height: 45px; cursor: pointer; transition: 0.3s; filter: drop-shadow(0 0 5px var(--neon-purple)); }
-        .icon:hover { transform: translateY(-10px) scale(1.1); }
+        .icon { width: 45px; height: 45px; cursor: pointer; transition: 0.3s; }
+        .icon:hover { transform: translateY(-10px); }
 
-        /* THE HOLOFRAME - MATHEMATICAL CENTERING */
+        /* THE HOLOFRAME - FORCED CENTERING */
         #holoframe {
             display: none; position: fixed; 
             top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -60,7 +59,7 @@
             box-shadow: 0 0 50px rgba(188, 19, 254, 0.5); overflow: hidden;
         }
         .frame-header {
-            padding: 12px 20px; display: flex; justify-content: space-between;
+            padding: 12px; display: flex; justify-content: space-between;
             background: rgba(188, 19, 254, 0.15); border-bottom: 1px solid var(--neon-purple);
             color: var(--neon-green); font-size: 0.8rem;
         }
@@ -69,7 +68,7 @@
 </head>
 <body>
 
-<video id="bg-video" muted playsinline loop preload="auto">
+<video id="bg-video" muted playsinline loop>
     <source src="https://raw.githubusercontent.com/highland88999-commits/Colossus/main/No_humans_in_vi.mp4" type="video/mp4">
 </video>
 
@@ -77,23 +76,23 @@
     <video class="gate-vid" autoplay loop muted playsinline>
         <source src="https://raw.githubusercontent.com/highland88999-commits/Colossus/main/hailuo_1767790564.mp4" type="video/mp4">
     </video>
-    <button class="gate-btn">INITIALIZE NEXUS</button>
+    <button class="gate-btn">INITIALIZE</button>
 </div>
 
 <div id="dock">
-    <div class="icon" onclick="launch('https://stake.com/?c=1FofAXWx', 'STAKE_VAULT')">
+    <div class="icon" onclick="launch('https://stake.com/?c=1FofAXWx', 'STAKE')">
         <svg viewBox="0 0 24 24" fill="var(--neon-green)"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
     </div>
-    <div class="icon" onclick="launch('olympics', 'SYNC_MODULE')">
+    <div class="icon" onclick="launch('olympics', 'OLYMPICS')">
         <svg viewBox="0 0 24 24" fill="var(--neon-purple)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+    </div>
+    <div class="icon" onclick="launch('racer', 'RACER')">
+        <svg viewBox="0 0 24 24" fill="#ff00ff"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
     </div>
 </div>
 
 <div id="holoframe">
-    <div class="frame-header">
-        <span id="mod-title">SYSTEM_LINK</span>
-        <span onclick="closeMod()" style="cursor:pointer; color:#ff3366;">[CLOSE_X]</span>
-    </div>
+    <div class="frame-header"><span id="mod-title">LINK</span><span onclick="closeMod()" style="cursor:pointer; color:#ff3366;">[X]</span></div>
     <iframe id="nexus-iframe" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" allow="autoplay; fullscreen"></iframe>
 </div>
 
@@ -107,19 +106,24 @@
     }
 
     function launch(url, title) {
-        const frame = document.getElementById('holoframe');
         const ifr = document.getElementById('nexus-iframe');
+        document.getElementById('holoframe').style.display = 'flex';
         document.getElementById('mod-title').innerText = title;
-        frame.style.display = 'flex';
+
+        const sharedStyle = `<style>
+            body { margin:0; display:flex; align-items:center; justify-content:center; height:100vh; background:#000; color:#fff; overflow:hidden; font-family:monospace; }
+            .content { text-align:center; max-width:100%; padding:20px; }
+        </style>`;
 
         if(url === 'olympics') {
-            // This is the Auto-Adjust Shell
-            ifr.srcdoc = `<html><head><style>
-                body { margin:0; padding:10px; background:#000; color:#fff; display:flex; align-items:center; justify-content:center; height:100vh; overflow:hidden; font-family:monospace; }
-                .container { width:100%; max-width:400px; border:2px solid #bc13fe; padding:20px; text-align:center; }
-            </style></head><body><div class="container">
-                <h2 style="color:#39ff14">OLYMPIC_BUILD_CONNECTED</h2>
-                <p>Artemis, drop your transition code here.</p>
+            ifr.srcdoc = `<html><head>${sharedStyle}</head><body><div class="content">
+                <h2 style="color:var(--neon-green)">OLYMPIC_SYNC</h2>
+                <p>Build 1.0 Active.</p>
+            </div></body></html>`;
+        } else if (url === 'racer') {
+            ifr.srcdoc = `<html><head>${sharedStyle}</head><body><div class="content">
+                <h2 style="color:#ff00ff">NEON_RACER_CORE</h2>
+                <p>System Ready.</p>
             </div></body></html>`;
         } else {
             ifr.src = url;
@@ -129,7 +133,6 @@
     function closeMod() {
         document.getElementById('holoframe').style.display = 'none';
         document.getElementById('nexus-iframe').src = '';
-        document.getElementById('nexus-iframe').srcdoc = '';
     }
 </script>
 </body>
