@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Colossus | Artemis Nexus</title>
     <style>
-        :root { --neon-purple: #bc13fe; --neon-green: #39ff14; }
+        :root { --p: #bc13fe; --g: #39ff14; }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Courier New', monospace; }
 
@@ -24,32 +24,34 @@
             background: #000; display: flex; justify-content: center; align-items: center;
         }
         .gate-btn {
-            padding: 20px 40px; border: 2px solid var(--neon-green); 
-            color: var(--neon-green); background: transparent; cursor: pointer;
+            padding: 20px 40px; border: 2px solid var(--g); 
+            color: var(--g); background: transparent; cursor: pointer;
+            letter-spacing: 4px; font-weight: bold;
         }
 
         #dock {
             position: fixed; bottom: env(safe-area-inset-bottom, 25px);
             left: 50%; transform: translateX(-50%);
             display: flex; gap: 25px; padding: 12px 35px;
-            background: rgba(0,0,0,0.9); border: 1px solid var(--neon-purple);
+            background: rgba(0,0,0,0.9); border: 1px solid var(--p);
             border-radius: 50px; z-index: 1000;
         }
-        .icon { width: 45px; height: 45px; cursor: pointer; }
+        .icon { width: 45px; height: 45px; cursor: pointer; transition: 0.2s; }
+        .icon:active { transform: scale(0.9); }
 
-        /* THE HOLOFRAME: MATHEMATICAL CENTER-LOCK */
+        /* THE HOLOFRAME: CENTERED LOCK */
         #holoframe {
             display: none; position: fixed; 
             top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 94vw; height: 85vh; 
-            background: #000; border: 2px solid var(--neon-purple);
+            background: #000; border: 2px solid var(--p);
             border-radius: 20px; z-index: 4000; flex-direction: column;
-            overflow: hidden;
+            overflow: hidden; box-shadow: 0 0 40px rgba(188, 19, 254, 0.4);
         }
         .frame-header {
             padding: 12px 20px; display: flex; justify-content: space-between;
-            background: rgba(188, 19, 254, 0.15); border-bottom: 1px solid var(--neon-purple);
-            color: var(--neon-green); font-size: 0.8rem;
+            background: rgba(188, 19, 254, 0.2); border-bottom: 1px solid var(--p);
+            color: var(--g); font-size: 0.8rem;
         }
         iframe { flex: 1; border: none; width: 100%; height: 100%; }
     </style>
@@ -66,10 +68,10 @@
 
 <div id="dock">
     <div class="icon" onclick="launch('https://stake.com/?c=1FofAXWx', 'STAKE')">
-        <svg viewBox="0 0 24 24" fill="var(--neon-green)"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        <svg viewBox="0 0 24 24" fill="var(--g)"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
     </div>
     <div class="icon" onclick="launch('olympics.html', 'OLYMPICS')">
-        <svg viewBox="0 0 24 24" fill="var(--neon-purple)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+        <svg viewBox="0 0 24 24" fill="var(--p)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
     </div>
     <div class="icon" onclick="launch('racer.html', 'NEON_RACER')">
         <svg viewBox="0 0 24 24" fill="#ff00ff"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
@@ -77,15 +79,20 @@
 </div>
 
 <div id="holoframe">
-    <div class="frame-header"><span id="mod-title">LINK</span><span onclick="document.getElementById('holoframe').style.display='none'; document.getElementById('nexus-iframe').src='';" style="cursor:pointer; color:#ff3366;">[CLOSE_X]</span></div>
+    <div class="frame-header">
+        <span id="mod-title">LINKING...</span>
+        <span onclick="document.getElementById('holoframe').style.display='none'; document.getElementById('nexus-iframe').src='';" style="cursor:pointer; color:#ff3366;">[CLOSE_X]</span>
+    </div>
     <iframe id="nexus-iframe" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" allow="autoplay; fullscreen"></iframe>
 </div>
 
 <script>
     function launch(url, title) {
-        document.getElementById('holoframe').style.display = 'flex';
-        document.getElementById('mod-title').innerText = title;
-        document.getElementById('nexus-iframe').src = url;
+        const hf = document.getElementById('holoframe');
+        const ifr = document.getElementById('nexus-iframe');
+        hf.style.display = 'flex';
+        document.getElementById('mod-title').innerText = title + "::CONNECTED";
+        ifr.src = url;
     }
 </script>
 </body>
