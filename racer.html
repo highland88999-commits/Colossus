@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Star Racer: 60-Second Challenge</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+        :root {
+            --color-primary-pink: #ff00ff;
+            --color-secondary-cyan: #00e0ff;
+            --color-background: #0d0d1a;
+            --color-gold: #FFD700;
+            --color-score-red: #ff3333;
+            --color-timer-green: #33ff33;
+        }
+
+        body {
+            background-color: var(--color-background);
+            color: var(--color-secondary-cyan);
+            font-family: 'Inter', sans-serif;
+            text-align: center;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 95%;
+            border: 2px solid var(--color-primary-pink);
+            box-shadow: 0 0 20px var(--color-primary-pink), inset 0 0 20px var(--color-primary-pink);
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 8px;
+            padding: 15px;
+            position: relative;
+        }
+
+        h1 {
+            font-family: 'VT323', monospace;
+            color: var(--color-primary-pink);
+            text-shadow: 0 0 10px var(--color-primary-pink);
+            font-size: 2.5rem;
+            margin: 10px 0;
+        }
+
+        #gameCanvas {
+            border: 2px solid var(--color-secondary-cyan);
+            background: linear-gradient(to bottom, #1a0033, #0d0d1a);
+            box-shadow: 0 0 15px var(--color-secondary-cyan);
+            touch-action: none;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, var(--color-gold), #9B59B6);
+            border: none;
+            color: #fff;
+            padding: 12px 24px;
+            font-size: 1.2rem;
+            font-family: 'VT323', monospace;
+            cursor: pointer;
+            box-shadow: 0 0 8px var(--color-gold);
+            text-transform: uppercase;
+            border-radius: 4px;
+            margin: 10px;
+        }
+
+        #timerDisplay {
+            font-family: 'VT323', monospace;
+            font-size: 1.8rem;
+            color: var(--color-timer-green);
+        }
+
+        /* IMMERSIVE VIDEO OVERLAY */
+        #videoOverlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #000;
+            display: none;
+            z-index: 10000;
+        }
+
+        #player { width: 100%; height: 100%; }
+
+        .skip-btn {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            z-index: 10001;
+            opacity: 0.7;
+        }
+        .skip-btn:hover { opacity: 1; }
+    </style>
+</head>
+<body>
+
+    <div id="videoOverlay">
+        <div id="player"></div>
+        <button class="btn skip-btn" onclick="closeCredits()">SKIP TO RESTART</button>
+    </div>
+
+    <div class="container">
+        <h1>NEON STAR RACER</h1>
+        <div id="timerDisplay">READY?</div>
+        <div id="scoreDisplay" style="font-family: 'VT323'; font-size: 1.5rem;">Score: 0</div>
+        <canvas id="gameCanvas" width="300" height="500"></canvas>
+        <div class="controls">
+            <button id="startButton" class="btn">Start Race</button>
+        </div>
+    </div>
+
+    <script>
+        // Load YouTube API
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        var player;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                videoId: 'S3OtoO5zjjU',
+                playerVars: { 'autoplay': 0, 'controls': 0, 'rel': 0, 'showinfo': 0 },
+                events: { 'onStateChange': onPlayerStateChange }
+            });
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.ENDED) {
+                closeCredits();
+            }
+        }
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const startButton = document.getElementById('startButton');
+
+        let game = { isRunning: false, score: 0, speed: 3.5, timeRemaining: 60 };
+        let pod = { x: 150, y: 440, width: 30, targetX: 150 };
+        let obstacles = [];
+        let timerInterval;
+
+        function update() {
+            if (!game.isRunning) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (game.timeRemaining <= 0) {
+                game.isRunning = false;
+                showCredits();
+                return;
+            }
+
+            pod.x += (pod.targetX - pod.x) * 0.3;
+            game.score += game.speed / 15;
+            scoreDisplay.textContent = `Score: ${Math.floor(game.score)}`;
+            game.speed += 0.004;
+
+            if (Math.random() < 0.02) {
+                obstacles.push({ x: Math.random() * 250, y: -20, speed: game.speed });
+            }
+
+            obstacles.forEach(o => {
+                o.y += o.speed;
+                ctx.fillStyle = "#ff00ff";
+                ctx.fillRect(o.x, o.y, 40, 10);
+                
+                // Simple collision
+                if (o.y > 430 && o.y < 450 && Math.abs(o.x - pod.x) < 30) {
+                    game.isRunning = false;
+                    alert("CRASHED! FINAL SCORE: " + Math.floor(game.score));
+                    location.reload();
+                }
+            });
+
+            ctx.fillStyle = "#00e0ff";
+            ctx.fillRect(pod.x - 15, pod.y, 30, 15);
+
+            requestAnimationFrame(update);
+        }
+
+        function startGame() {
+            game.isRunning = true;
+            startButton.style.display = 'none';
+            timerInterval = setInterval(() => {
+                game.timeRemaining--;
+                timerDisplay.textContent = `TIME: ${game.timeRemaining}`;
+            }, 1000);
+            update();
+        }
+
+        function showCredits() {
+            clearInterval(timerInterval);
+            document.getElementById('videoOverlay').style.display = 'block';
+            player.playVideo();
+        }
+
+        function closeCredits() {
+            player.stopVideo();
+            document.getElementById('videoOverlay').style.display = 'none';
+            location.reload();
+        }
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            pod.targetX = (e.clientX - rect.left) * (canvas.width / rect.width);
+        });
+
+        startButton.addEventListener('click', startGame);
+    </script>
+</body>
+</html>
