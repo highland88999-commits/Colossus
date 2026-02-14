@@ -8,29 +8,24 @@
         :root {
             --neon-purple: #bc13fe;
             --neon-green: #39ff14;
-            --glass: rgba(10, 0, 20, 0.85);
-            --p-glow: 0 0 20px rgba(188, 19, 254, 0.7);
+            --glass: rgba(10, 0, 20, 0.9);
         }
 
-        /* Essential Reset for Mobile Perfection */
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
-        body, html { 
-            width: 100%; height: 100%; overflow: hidden; 
-            background: #000; font-family: 'Courier New', monospace; 
-        }
+        body, html { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Courier New', monospace; }
 
-        /* FIX: Background Video must be raw for GitHub */
+        /* THE FIX: TRUE RAW VIDEO STREAMING */
         #bg-video {
             position: fixed; top: 50%; left: 50%;
             min-width: 100%; min-height: 100%;
             width: auto; height: auto; z-index: -1;
-            transform: translateX(-50%) translateY(-50%);
+            transform: translate(-50%, -50%);
             filter: brightness(0.4) contrast(1.2);
             object-fit: cover;
+            background: #000;
         }
 
-        /* Landing Gate */
+        /* LANDING GATE */
         #landing-gate {
             position: fixed; inset: 0; z-index: 5000;
             background: #000; display: flex; justify-content: center; align-items: center;
@@ -38,57 +33,43 @@
         }
         .gate-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.4; }
         .gate-btn {
-            position: relative; z-index: 5001; padding: 15px 30px;
+            position: relative; z-index: 5001; padding: 20px 40px;
             border: 2px solid var(--neon-green); color: var(--neon-green);
-            background: transparent; font-size: 1.1rem; letter-spacing: 3px;
-            cursor: pointer; text-shadow: 0 0 10px var(--neon-green);
+            background: transparent; font-size: 1.2rem; letter-spacing: 4px;
+            cursor: pointer; text-shadow: 0 0 15px var(--neon-green);
         }
 
-        /* Main UI Container */
-        #nexus-ui {
-            display: none; height: 100vh; flex-direction: column;
-            align-items: center; justify-content: center; opacity: 0; transition: opacity 1s;
-        }
-
-        .central-terminal {
-            background: var(--glass); border: 2px solid var(--neon-purple);
-            box-shadow: var(--p-glow); border-radius: 15px;
-            padding: 30px; width: 88vw; max-width: 420px;
-            backdrop-filter: blur(20px); text-align: center;
-            color: #fff;
-        }
-
-        /* Bottom Dock */
+        /* DOCK - ADAPTIVE TO ALL PHONES */
         #dock {
-            position: fixed; bottom: env(safe-area-inset-bottom, 20px);
+            position: fixed; bottom: env(safe-area-inset-bottom, 25px);
             left: 50%; transform: translateX(-50%);
-            display: flex; gap: 20px; padding: 10px 25px;
+            display: flex; gap: 25px; padding: 12px 35px;
             background: rgba(0,0,0,0.9); border: 1px solid var(--neon-purple);
-            border-radius: 50px; z-index: 1000;
+            border-radius: 50px; z-index: 1000; backdrop-filter: blur(10px);
         }
-        .icon { width: 42px; height: 42px; cursor: pointer; transition: 0.3s; }
-        .icon:hover { transform: translateY(-10px); }
+        .icon { width: 45px; height: 45px; cursor: pointer; transition: 0.3s; filter: drop-shadow(0 0 5px var(--neon-purple)); }
+        .icon:hover { transform: translateY(-10px) scale(1.1); }
 
-        /* Auto-Adjusting Holoframe */
+        /* THE HOLOFRAME - MATHEMATICAL CENTERING */
         #holoframe {
             display: none; position: fixed; 
             top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 95vw; height: 88vh; 
+            width: 94vw; height: 85vh; 
             background: #000; border: 2px solid var(--neon-purple);
             border-radius: 20px; z-index: 4000; flex-direction: column;
-            box-shadow: 0 0 40px rgba(188, 19, 254, 0.5); overflow: hidden;
+            box-shadow: 0 0 50px rgba(188, 19, 254, 0.5); overflow: hidden;
         }
         .frame-header {
-            padding: 12px; display: flex; justify-content: space-between;
-            background: rgba(188, 19, 254, 0.1); border-bottom: 1px solid var(--neon-purple);
-            color: var(--neon-green); font-size: 0.75rem;
+            padding: 12px 20px; display: flex; justify-content: space-between;
+            background: rgba(188, 19, 254, 0.15); border-bottom: 1px solid var(--neon-purple);
+            color: var(--neon-green); font-size: 0.8rem;
         }
-        iframe { flex: 1; border: none; width: 100%; height: 100%; }
+        iframe { flex: 1; border: none; width: 100%; height: 100%; background: #000; }
     </style>
 </head>
 <body>
 
-<video id="bg-video" muted playsinline loop>
+<video id="bg-video" muted playsinline loop preload="auto">
     <source src="https://raw.githubusercontent.com/highland88999-commits/Colossus/main/No_humans_in_vi.mp4" type="video/mp4">
 </video>
 
@@ -96,27 +77,23 @@
     <video class="gate-vid" autoplay loop muted playsinline>
         <source src="https://raw.githubusercontent.com/highland88999-commits/Colossus/main/hailuo_1767790564.mp4" type="video/mp4">
     </video>
-    <button class="gate-btn">ACCESS NEXUS</button>
-</div>
-
-<div id="nexus-ui">
-    <div class="central-terminal">
-        <h2 style="color:var(--neon-green); margin-bottom:10px;">COLOSSUS_v1</h2>
-        <p>Vault protocols active. Use the dock to deploy modules.</p>
-    </div>
+    <button class="gate-btn">INITIALIZE NEXUS</button>
 </div>
 
 <div id="dock">
-    <div class="icon" onclick="launch('https://stake.com/?c=1FofAXWx', 'VAULT')">
+    <div class="icon" onclick="launch('https://stake.com/?c=1FofAXWx', 'STAKE_VAULT')">
         <svg viewBox="0 0 24 24" fill="var(--neon-green)"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
     </div>
-    <div class="icon" onclick="launch('olympics', 'SYNC')">
+    <div class="icon" onclick="launch('olympics', 'SYNC_MODULE')">
         <svg viewBox="0 0 24 24" fill="var(--neon-purple)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
     </div>
 </div>
 
 <div id="holoframe">
-    <div class="frame-header"><span id="mod-name">MODULE</span><span onclick="closeMod()" style="cursor:pointer; color:#ff3366;">[CLOSE]</span></div>
+    <div class="frame-header">
+        <span id="mod-title">SYSTEM_LINK</span>
+        <span onclick="closeMod()" style="cursor:pointer; color:#ff3366;">[CLOSE_X]</span>
+    </div>
     <iframe id="nexus-iframe" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" allow="autoplay; fullscreen"></iframe>
 </div>
 
@@ -125,8 +102,6 @@
         document.getElementById('landing-gate').style.opacity = '0';
         setTimeout(() => {
             document.getElementById('landing-gate').style.display = 'none';
-            document.getElementById('nexus-ui').style.display = 'flex';
-            setTimeout(() => document.getElementById('nexus-ui').style.opacity = '1', 50);
             document.getElementById('bg-video').play();
         }, 800);
     }
@@ -134,15 +109,18 @@
     function launch(url, title) {
         const frame = document.getElementById('holoframe');
         const ifr = document.getElementById('nexus-iframe');
-        document.getElementById('mod-name').innerText = title + "_CONNECTED";
+        document.getElementById('mod-title').innerText = title;
         frame.style.display = 'flex';
 
         if(url === 'olympics') {
-            // This template ensures your build stays centered and fits the device
+            // This is the Auto-Adjust Shell
             ifr.srcdoc = `<html><head><style>
-                body { margin:0; background:#000; color:#fff; display:flex; align-items:center; justify-content:center; height:100vh; overflow:hidden; font-family:sans-serif; }
-                .container { max-width: 100%; text-align:center; padding:20px; border:1px solid #bc13fe; }
-            </style></head><body><div class="container"><h1>OLYMPIC_BUILD_HERE</h1><p>Paste your transition code inside this container.</p></div></body></html>`;
+                body { margin:0; padding:10px; background:#000; color:#fff; display:flex; align-items:center; justify-content:center; height:100vh; overflow:hidden; font-family:monospace; }
+                .container { width:100%; max-width:400px; border:2px solid #bc13fe; padding:20px; text-align:center; }
+            </style></head><body><div class="container">
+                <h2 style="color:#39ff14">OLYMPIC_BUILD_CONNECTED</h2>
+                <p>Artemis, drop your transition code here.</p>
+            </div></body></html>`;
         } else {
             ifr.src = url;
         }
@@ -151,6 +129,7 @@
     function closeMod() {
         document.getElementById('holoframe').style.display = 'none';
         document.getElementById('nexus-iframe').src = '';
+        document.getElementById('nexus-iframe').srcdoc = '';
     }
 </script>
 </body>
