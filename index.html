@@ -9,7 +9,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Courier New', monospace; }
 
-        /* FIXED RAW BACKGROUND VIDEO */
         #bg-video {
             position: fixed; top: 50%; left: 50%;
             min-width: 100%; min-height: 100%;
@@ -33,13 +32,12 @@
             position: fixed; bottom: env(safe-area-inset-bottom, 25px);
             left: 50%; transform: translateX(-50%);
             display: flex; gap: 25px; padding: 12px 35px;
-            background: rgba(0,0,0,0.9); border: 1px solid var(--p);
-            border-radius: 50px; z-index: 1000;
+            background: rgba(0,0,0,0.95); border: 1px solid var(--p);
+            border-radius: 50px; z-index: 1000; backdrop-filter: blur(10px);
         }
         .icon { width: 45px; height: 45px; cursor: pointer; transition: 0.2s; }
         .icon:active { transform: scale(0.9); }
 
-        /* THE HOLOFRAME: CENTERED LOCK */
         #holoframe {
             display: none; position: fixed; 
             top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -67,7 +65,7 @@
 </div>
 
 <div id="dock">
-    <div class="icon" onclick="launch('https://stake.com/?c=1FofAXWx', 'STAKE')">
+    <div class="icon" onclick="launch('stake.html', 'STAKE_VAULT')">
         <svg viewBox="0 0 24 24" fill="var(--g)"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
     </div>
     <div class="icon" onclick="launch('olympics.html', 'OLYMPICS')">
