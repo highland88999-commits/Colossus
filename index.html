@@ -5,16 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Colossus | Artemis Nexus</title>
     <style>
-        :root {
-            --neon-purple: #bc13fe;
-            --neon-green: #39ff14;
-        }
-
-        /* MANDATORY AUTO-ADJUST: Universal Centering */
+        :root { --neon-purple: #bc13fe; --neon-green: #39ff14; }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Courier New', monospace; }
 
-        /* BG VIDEO: RAW STREAM ONLY */
+        /* FIXED RAW BACKGROUND VIDEO */
         #bg-video {
             position: fixed; top: 50%; left: 50%;
             min-width: 100%; min-height: 100%;
@@ -28,14 +23,11 @@
             position: fixed; inset: 0; z-index: 5000;
             background: #000; display: flex; justify-content: center; align-items: center;
         }
-        .gate-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.4; }
         .gate-btn {
-            position: relative; z-index: 5001; padding: 20px 40px;
-            border: 2px solid var(--neon-green); color: var(--neon-green);
-            background: transparent; font-size: 1.2rem; cursor: pointer;
+            padding: 20px 40px; border: 2px solid var(--neon-green); 
+            color: var(--neon-green); background: transparent; cursor: pointer;
         }
 
-        /* DOCK: Device Adaptive */
         #dock {
             position: fixed; bottom: env(safe-area-inset-bottom, 25px);
             left: 50%; transform: translateX(-50%);
@@ -45,21 +37,21 @@
         }
         .icon { width: 45px; height: 45px; cursor: pointer; }
 
-        /* HOLOFRAME: Absolute Mathematical Centering */
+        /* THE HOLOFRAME: MATHEMATICAL CENTER-LOCK */
         #holoframe {
             display: none; position: fixed; 
             top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 94vw; height: 85vh; 
             background: #000; border: 2px solid var(--neon-purple);
             border-radius: 20px; z-index: 4000; flex-direction: column;
-            box-shadow: 0 0 50px rgba(188, 19, 254, 0.5); overflow: hidden;
+            overflow: hidden;
         }
         .frame-header {
             padding: 12px 20px; display: flex; justify-content: space-between;
             background: rgba(188, 19, 254, 0.15); border-bottom: 1px solid var(--neon-purple);
             color: var(--neon-green); font-size: 0.8rem;
         }
-        iframe { flex: 1; border: none; width: 100%; height: 100%; background: #000; }
+        iframe { flex: 1; border: none; width: 100%; height: 100%; }
     </style>
 </head>
 <body>
@@ -68,10 +60,7 @@
     <source src="https://raw.githubusercontent.com/highland88999-commits/Colossus/main/No_humans_in_vi.mp4" type="video/mp4">
 </video>
 
-<div id="landing-gate" onclick="initSystem()">
-    <video class="gate-vid" autoplay loop muted playsinline>
-        <source src="https://raw.githubusercontent.com/highland88999-commits/Colossus/main/hailuo_1767790564.mp4" type="video/mp4">
-    </video>
+<div id="landing-gate" onclick="this.style.display='none'; document.getElementById('bg-video').play();">
     <button class="gate-btn">INITIALIZE</button>
 </div>
 
@@ -79,56 +68,24 @@
     <div class="icon" onclick="launch('https://stake.com/?c=1FofAXWx', 'STAKE')">
         <svg viewBox="0 0 24 24" fill="var(--neon-green)"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
     </div>
-    <div class="icon" onclick="launch('olympics', 'OLYMPICS')">
+    <div class="icon" onclick="launch('olympics.html', 'OLYMPICS')">
         <svg viewBox="0 0 24 24" fill="var(--neon-purple)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
     </div>
-    <div class="icon" onclick="launch('racer', 'NEON_RACER')">
+    <div class="icon" onclick="launch('racer.html', 'NEON_RACER')">
         <svg viewBox="0 0 24 24" fill="#ff00ff"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
     </div>
 </div>
 
 <div id="holoframe">
-    <div class="frame-header"><span id="mod-title">LINK</span><span onclick="closeMod()" style="cursor:pointer; color:#ff3366;">[CLOSE_X]</span></div>
+    <div class="frame-header"><span id="mod-title">LINK</span><span onclick="document.getElementById('holoframe').style.display='none'; document.getElementById('nexus-iframe').src='';" style="cursor:pointer; color:#ff3366;">[CLOSE_X]</span></div>
     <iframe id="nexus-iframe" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" allow="autoplay; fullscreen"></iframe>
 </div>
 
 <script>
-    function initSystem() {
-        document.getElementById('landing-gate').style.display = 'none';
-        document.getElementById('bg-video').play();
-    }
-
     function launch(url, title) {
-        const ifr = document.getElementById('nexus-iframe');
         document.getElementById('holoframe').style.display = 'flex';
         document.getElementById('mod-title').innerText = title;
-
-        const sharedStyle = `<style>
-            * { box-sizing: border-box; margin: 0; padding: 0; }
-            body { display:flex; align-items:center; justify-content:center; height:100vh; width:100vw; background:#000; overflow:hidden; }
-            canvas, .wrap { max-width:100%; max-height:100%; object-fit:contain; }
-        </style>`;
-
-        if(url === 'olympics') {
-            // INTEGRATING THE BUILD CODE YOU UPLOADED PREVIOUSLY
-            ifr.srcdoc = `<html><head>${sharedStyle}</head><body>
-                <div class="wrap">
-                    </div>
-            </body></html>`;
-        } else if (url === 'racer') {
-            // INTEGRATING THE NEON RACER BUILD CODE YOU UPLOADED PREVIOUSLY
-            ifr.srcdoc = `<html><head>${sharedStyle}</head><body>
-                <div class="wrap">
-                    </div>
-            </body></html>`;
-        } else {
-            ifr.src = url;
-        }
-    }
-
-    function closeMod() {
-        document.getElementById('holoframe').style.display = 'none';
-        document.getElementById('nexus-iframe').src = '';
+        document.getElementById('nexus-iframe').src = url;
     }
 </script>
 </body>
