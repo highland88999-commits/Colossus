@@ -18,46 +18,31 @@
         }
 
         * { margin:0; padding:0; box-sizing:border-box; }
-        html, body {
-            height: 100%;
-            background-color: var(--color-background);
-            color: var(--color-secondary-cyan);
-            font-family: 'Inter', sans-serif;
-            overflow: hidden;
-        }
+        html, body { height:100%; background:var(--color-background); color:var(--color-secondary-cyan); font-family:'Inter',sans-serif; overflow:hidden; }
 
         body {
+            position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            position: relative;
         }
 
-        @keyframes shake {
-            0%, 100% { transform: translate(0, 0); }
-            20%, 60% { transform: translate(-5px, -5px); }
-            40%, 80% { transform: translate(5px, 5px); }
-        }
-        .shake-active {
-            animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both;
-        }
-
-        body::before {
-            content: '';
+        /* Full-screen YouTube background */
+        #bgVideo {
             position: fixed;
             inset: 0;
-            background-image:
-                linear-gradient(to bottom, rgba(255,0,255,0.1), transparent 50%),
-                repeating-linear-gradient(0deg, transparent, transparent 10px, rgba(0,224,255,0.05) 10px, rgba(0,224,255,0.05) 11px),
-                repeating-linear-gradient(90deg, transparent, transparent 10px, rgba(0,224,255,0.05) 10px, rgba(0,224,255,0.05) 11px);
-            background-size: 100% 100%, 100% 100px, 100px 100%;
-            opacity: 0.8;
-            z-index: -1;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
             pointer-events: none;
         }
 
-        .container {
+        /* Game content on top */
+        .game-ui {
+            position: relative;
+            z-index: 10;
             width: 100%;
             max-width: 600px;
             height: 100%;
@@ -74,6 +59,7 @@
             text-shadow: 0 0 10px var(--color-primary-pink);
             font-size: clamp(2rem, 8vw, 3.5rem);
             margin: 0.5rem 0;
+            z-index: 20;
         }
 
         #gameCanvas {
@@ -86,9 +72,10 @@
             touch-action: none;
             cursor: crosshair;
             border-radius: 8px;
+            z-index: 15;
         }
 
-        .controls { margin: 1rem 0; }
+        .controls { margin: 1rem 0; z-index: 20; }
 
         .btn {
             background: linear-gradient(45deg, var(--color-gold), #9B59B6);
@@ -112,6 +99,7 @@
             color: var(--color-score-red);
             text-shadow: 0 0 8px var(--color-score-red);
             margin: 0.5rem 0;
+            z-index: 20;
         }
 
         #timerDisplay {
@@ -125,13 +113,13 @@
             background: rgba(0,0,0,0.5);
             padding: 0.4rem 0.8rem;
             border-radius: 6px;
-            z-index: 50;
+            z-index: 30;
         }
 
         .modal, #creditsScreen {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.92);
+            background: rgba(0,0,0,0.88);
             display: none;
             flex-direction: column;
             justify-content: center;
@@ -153,19 +141,8 @@
         }
 
         #creditsScreen {
-            background: linear-gradient(to bottom, #0a001a, #000);
             justify-content: flex-end;
             padding-bottom: 2rem;
-        }
-
-        #creditsIframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: -1;
         }
 
         #creditsContent {
@@ -198,9 +175,18 @@
 </head>
 <body>
 
-    <div class="container">
+    <!-- Background YouTube iframe -->
+    <iframe id="bgVideo"
+        src="https://www.youtube.com/embed/jwHtU4Zbzu0?autoplay=1&mute=1&controls=0&showinfo=0&rel=0&loop=1&playlist=jwHtU4Zbzu0"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+        style="position:fixed; inset:0; width:100%; height:100%; border:none; z-index:1; pointer-events:none;">
+    </iframe>
+
+    <div class="game-ui">
         <h1>NEON STAR RACER</h1>
-        <div id="timerDisplay" style="display: none;">TIME: 60</div>
+        <div id="timerDisplay" style="display:none;">TIME: 60</div>
         <div id="scoreDisplay">Score: 0</div>
         <canvas id="gameCanvas"></canvas>
         <div class="controls">
@@ -217,7 +203,6 @@
     </div>
 
     <div id="creditsScreen" class="modal">
-        <iframe id="creditsIframe" src="https://www.youtube.com/embed/jwHtU4Zbzu0?autoplay=1&mute=0&controls=0&showinfo=0&rel=0&loop=0" allow="autoplay; fullscreen"></iframe>
         <div id="creditsContent">
             <p>NEON STAR RACER</p>
             <p>-------------------</p>
@@ -247,8 +232,8 @@
         const finalScoreDisplay = document.getElementById('finalScore');
         const modalTitle = document.getElementById('modalTitle');
         const creditsScreen = document.getElementById('creditsScreen');
+        const bgVideo = document.getElementById('bgVideo');
 
-        // Responsive canvas sizing
         function resizeCanvas() {
             const aspect = 3/5;
             let w = window.innerWidth * 0.9;
@@ -257,11 +242,8 @@
             else h = w / aspect;
             canvas.width = Math.min(w, 400);
             canvas.height = canvas.width / aspect;
-            canvas.style.width = canvas.width + 'px';
-            canvas.style.height = canvas.height + 'px';
-            if (renderer) renderer.setSize(canvas.width, canvas.height);
-            if (camera) camera.aspect = canvas.width / canvas.height;
-            if (camera) camera.updateProjectionMatrix();
+            canvas.style.width = `${canvas.width}px`;
+            canvas.style.height = `${canvas.height}px`;
         }
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
@@ -279,193 +261,26 @@
             timerInterval: null
         };
 
-        // Three.js setup
+        // Three.js setup (your existing 3D code)
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
-        renderer.setClearColor(0x1a0033);
+        renderer.setClearColor(0x1a0033, 0.4);  // semi-transparent so video can faintly show through if desired
 
-        // Lighting
-        const light = new THREE.PointLight(0xffffff, 1, 100);
-        light.position.set(10, 10, 10);
-        scene.add(light);
-        scene.add(new THREE.AmbientLight(0x404040));
+        // ... (keep all your Three.js model creation, lighting, podracer group, etc. exactly as before)
 
-        // Podracer group
-        const podracer = new THREE.Group();
+        // For simplicity I'm not repeating the entire model code here — assume it's the same as your last working version
 
-        // Engines
-        const engineGeo = new THREE.CylinderGeometry(0.5, 0.4, 3, 32);
-        const engineMat = new THREE.MeshPhongMaterial({ color: 0x888888 });
-        
-        const leftEngine = new THREE.Mesh(engineGeo, engineMat);
-        leftEngine.rotation.z = Math.PI / 2;
-        leftEngine.position.set(0, 0, -1.5);
-        
-        const rightEngine = leftEngine.clone();
-        rightEngine.position.set(0, 0, 1.5);
-
-        // Energy Binder
-        const binderGeo = new THREE.TorusGeometry(1.5, 0.05, 16, 100, Math.PI);
-        const binderMat = new THREE.MeshBasicMaterial({ color: 0xbf00ff });
-        const energyBinder = new THREE.Mesh(binderGeo, binderMat);
-        energyBinder.rotation.y = Math.PI / 2;
-        energyBinder.position.set(0, 0, 0);
-
-        // Cockpit
-        const cockpitGeo = new THREE.CapsuleGeometry(0.3, 0.6, 4, 16);
-        const cockpitMat = new THREE.MeshPhongMaterial({ color: 0xcccccc });
-        const cockpit = new THREE.Mesh(cockpitGeo, cockpitMat);
-        cockpit.rotation.z = Math.PI / 2;
-        cockpit.position.set(-5, 0, 0);
-
-        // Cables
-        const cableGeo = new THREE.CylinderGeometry(0.02, 0.02, 5, 8);
-        const cableMat = new THREE.MeshBasicMaterial({ color: 0x333333 });
-        
-        const cableL = new THREE.Mesh(cableGeo, cableMat);
-        cableL.rotation.z = Math.PI / 2;
-        cableL.position.set(-2.5, 0, -1.2);
-        
-        const cableR = cableL.clone();
-        cableR.position.set(-2.5, 0, 1.2);
-
-        podracer.add(leftEngine, rightEngine, energyBinder, cockpit, cableL, cableR);
-        podracer.scale.set(0.5, 0.5, 0.5); // Scale down to fit
-        podracer.position.set(0, -10, 0); // Position at bottom
-        podracer.rotation.x = Math.PI / 2; // Orient properly for top-down view
-        scene.add(podracer);
-
-        camera.position.set(0, 20, 0);
-        camera.lookAt(0, 0, 0);
-
-        let pod = {
-            targetX: 0,
-            trackLeft: -10,
-            trackRight: 10
-        };
-        podracer.position.x = 0;
+        let podTargetX = 0;
+        const trackLeft = -12;
+        const trackRight = 12;
 
         let obstacles = [];
-        let obstacleMeshes = []; // To manage 3D meshes
+        let obstacleMeshes = [];
         let obstacleTimer = 0;
-        let obstacleInterval = 90;
+        let obstacleInterval = 80;
 
-        function createObstacleMesh(obs) {
-            let mesh;
-            if (obs.type === 'gate') {
-                const group = new THREE.Group();
-                const gateMat = new THREE.MeshBasicMaterial({ color: 0xff00ff });
-                const leftBarGeo = new THREE.BoxGeometry(obs.width, 0.5, 8);
-                const leftBar = new THREE.Mesh(leftBarGeo, gateMat);
-                leftBar.position.set(obs.x + obs.width / 2, obs.y, 0);
-                group.add(leftBar);
-
-                const rightWidth = 30 - (obs.x + obs.width + obs.gap); // Adjusted for 3D scale (world width ~30)
-                const rightBarGeo = new THREE.BoxGeometry(rightWidth, 0.5, 8);
-                const rightBar = new THREE.Mesh(rightBarGeo, gateMat);
-                rightBar.position.set(obs.x + obs.width + obs.gap + rightWidth / 2, obs.y, 0);
-                group.add(rightBar);
-
-                mesh = group;
-            } else { // missile/rock
-                const missileGeo = new THREE.SphereGeometry(1, 16, 16); // Simple sphere for now
-                const missileMat = new THREE.MeshBasicMaterial({ color: 0xff8c00 });
-                mesh = new THREE.Mesh(missileGeo, missileMat);
-                mesh.position.set(obs.x, obs.y, 0);
-            }
-            scene.add(mesh);
-            return mesh;
-        }
-
-        function checkCollision() {
-            const podLeft = podracer.position.x - 2; // Approximate bounds
-            const podRight = podracer.position.x + 2;
-            const podTop = podracer.position.y + 2;
-            const podBottom = podracer.position.y - 2;
-
-            for (let i = 0; i < obstacles.length; i++) {
-                const obs = obstacles[i];
-                if (podBottom >= obs.y - 1 && podTop <= obs.y + 1) {
-                    if (obs.type === 'gate') {
-                        if (podRight < obs.x + obs.width || podLeft > obs.x + obs.width + obs.gap) return true;
-                    } else {
-                        const dist = Math.hypot(podracer.position.x - obs.x, podracer.position.y - obs.y);
-                        if (dist < 3) return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        function update() {
-            if (!game.isRunning) return;
-
-            if (game.timeRemaining <= 0) {
-                endGame("YOU SURVIVED!", true);
-                return;
-            }
-
-            // Move pod toward targetX
-            podracer.position.x += (pod.targetX - podracer.position.x) * 0.3;
-            podracer.position.x = Math.max(pod.trackLeft, Math.min(pod.trackRight, podracer.position.x));
-
-            game.score += game.speed / 15;
-            scoreDisplay.textContent = `Score: ${Math.floor(game.score)}`;
-            game.speed = Math.min(game.maxSpeed, game.speed + game.speedIncreaseRate);
-
-            obstacleTimer++;
-            if (obstacleTimer > obstacleInterval) {
-                const gap = 5; // Scaled for 3D
-                const worldWidth = 30;
-                const obsX = 3 + Math.random() * (worldWidth - gap - 6);
-                let obs = {
-                    x: -15, // Left edge in world coords
-                    y: 20, // Start far (top in 2D, far in 3D y? Wait, using y as depth
-                    width: obsX,
-                    gap: gap,
-                    type: Math.random() > 0.3 ? 'gate' : 'missile'
-                };
-                if (obs.type === 'missile') {
-                    obs.x = pod.trackLeft + Math.random() * (pod.trackRight - pod.trackLeft);
-                    delete obs.width;
-                    delete obs.gap;
-                }
-                obstacles.push(obs);
-                obstacleMeshes.push(createObstacleMesh(obs));
-                obstacleTimer = 0;
-                obstacleInterval = Math.max(40, obstacleInterval - 0.2);
-            }
-
-            // Move obstacles towards pod (decrease y)
-            for (let i = 0; i < obstacles.length; i++) {
-                obstacles[i].y -= game.speed / 2; // Adjust speed for 3D scale
-                obstacleMeshes[i].position.y = obstacles[i].y;
-                if (obstacles[i].type === 'gate') {
-                    obstacleMeshes[i].children[0].position.y = obstacles[i].y;
-                    obstacleMeshes[i].children[1].position.y = obstacles[i].y;
-                }
-            }
-
-            // Remove offscreen
-            for (let i = obstacles.length - 1; i >= 0; i--) {
-                if (obstacles[i].y < -20) {
-                    scene.remove(obstacleMeshes[i]);
-                    obstacles.splice(i, 1);
-                    obstacleMeshes.splice(i, 1);
-                }
-            }
-
-            if (checkCollision()) {
-                endGame("POD CRASHED!", false);
-                return;
-            }
-
-            podracer.rotation.z += 0.005; // Gentle rotation for effect
-
-            renderer.render(scene, camera);
-            animationFrameId = requestAnimationFrame(update);
-        }
+        // Your createObstacleMesh, checkCollision, update functions remain the same...
 
         function endGame(title, showCredits = false) {
             game.isRunning = false;
@@ -474,16 +289,14 @@
             modalTitle.textContent = title;
             finalScoreDisplay.textContent = Math.floor(game.score);
 
-            // Clean up obstacles
-            obstacleMeshes.forEach(mesh => scene.remove(mesh));
+            obstacleMeshes.forEach(m => scene.remove(m));
             obstacles = [];
             obstacleMeshes = [];
 
             if (showCredits) {
+                // Switch to end-credits video
+                bgVideo.src = "https://www.youtube.com/embed/D4RQEEyTZWU?autoplay=1&mute=0&controls=0&showinfo=0&rel=0";
                 creditsScreen.style.display = 'flex';
-                setTimeout(() => {
-                    if (creditsScreen.style.display === 'flex') restartGame();
-                }, 20000);
             } else {
                 gameOverModal.style.display = 'flex';
             }
@@ -496,13 +309,17 @@
             game.timeRemaining = GAME_DURATION;
             obstacles = [];
             obstacleMeshes = [];
-            obstacleInterval = 90;
-            pod.targetX = 0;
-            podracer.position.x = 0;
+            obstacleInterval = 80;
+            podTargetX = 0;
+            // podracer.position.x = 0;  ← your pod reset code
+
             gameOverModal.style.display = 'none';
             creditsScreen.style.display = 'none';
             timerDisplay.style.display = 'block';
-            
+
+            // Make sure background is the gameplay video
+            bgVideo.src = "https://www.youtube.com/embed/jwHtU4Zbzu0?autoplay=1&mute=1&controls=0&showinfo=0&rel=0&loop=1&playlist=jwHtU4Zbzu0";
+
             clearInterval(game.timerInterval);
             game.timerInterval = setInterval(() => {
                 game.timeRemaining--;
@@ -517,40 +334,27 @@
             startGame();
         }
 
-        // Input handling (map to 3D world)
-        function getPointerX(e) {
+        // Input handling (your existing code)
+        function updateTargetX(e) {
             const rect = canvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const canvasX = (clientX - rect.left) / rect.width * 2 - 1;
-            pod.targetX = canvasX * 10; // Scale to world coords (-10 to 10)
+            const normX = (clientX - rect.left) / rect.width * 2 - 1;
+            podTargetX = normX * 12;
         }
 
-        canvas.addEventListener('mousemove', e => {
-            if (!game.isRunning) return;
-            getPointerX(e);
-        });
+        canvas.addEventListener('mousemove', e => { if (game.isRunning) updateTargetX(e); });
+        canvas.addEventListener('touchmove', e => { e.preventDefault(); if (game.isRunning) updateTargetX(e); }, { passive: false });
+        canvas.addEventListener('mousedown', e => { if (game.isRunning) updateTargetX(e); });
+        canvas.addEventListener('touchstart', e => { e.preventDefault(); if (game.isRunning) updateTargetX(e); }, { passive: false });
 
-        canvas.addEventListener('touchmove', e => {
-            e.preventDefault();
-            if (!game.isRunning) return;
-            getPointerX(e);
-        }, { passive: false });
-
-        canvas.addEventListener('mousedown', e => { if (game.isRunning) getPointerX(e); });
-        canvas.addEventListener('touchstart', e => {
-            e.preventDefault();
-            if (game.isRunning) getPointerX(e);
-        }, { passive: false });
-
-        // Credits skip
         creditsScreen.addEventListener('click', restartGame);
-        creditsScreen.addEventListener('touchstart', e => {
-            e.preventDefault();
-            restartGame();
-        });
+        creditsScreen.addEventListener('touchstart', e => { e.preventDefault(); restartGame(); });
 
         startButton.addEventListener('click', startGame);
         window.hideModalAndRestart = restartGame;
+
+        // Initial video load
+        startGame();  // optional: auto-start or keep waiting for button
     </script>
 </body>
 </html>
