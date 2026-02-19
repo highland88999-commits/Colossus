@@ -18,13 +18,7 @@
         }
 
         * { margin:0; padding:0; box-sizing:border-box; }
-        html, body {
-            height: 100%;
-            overflow: hidden;
-            background: #000;
-            font-family: 'Inter', sans-serif;
-            touch-action: manipulation;
-        }
+        html, body { height:100%; overflow:hidden; background:#000; font-family:'Inter',sans-serif; touch-action:manipulation; }
 
         body {
             position: relative;
@@ -54,7 +48,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 2rem 1rem 10rem; /* generous bottom for safe areas */
+            padding: 2rem 1rem 10rem; /* extra bottom for safe areas/gesture bar */
             transition: opacity 1.2s ease;
         }
 
@@ -166,9 +160,9 @@
 </head>
 <body>
 
-    <!-- Background video – muted on load -->
+    <!-- Background YouTube – muted on load -->
     <iframe id="bgVideo" 
-        src="https://www.youtube.com/embed/jwHtU4Zbzu0?autoplay=1&mute=1&controls=0&modestbranding=1&iv_load_policy=3&rel=0&loop=1&playlist=jwHtU4Zbzu0&playsinline=1"
+        src="https://www.youtube.com/embed/jwHtU4Zbzu0?autoplay=1&mute=1&controls=0&modestbranding=1&iv_load_policy=3&rel=0&loop=1&playlist=jwHtU4Zbzu0&playsinline=1&enablejsapi=1"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         frameborder="0"
         style="position:fixed; inset:0; width:100%; height:100%; border:none; z-index:1; pointer-events:none;">
@@ -381,7 +375,7 @@
             gameUI.style.opacity = '1';
             gameUI.style.display = 'flex';
 
-            // Unmute video on user gesture
+            // Unmute on user gesture
             bgVideo.contentWindow.postMessage('{"event":"command","func":"unMute","args":[]}', '*');
 
             clearInterval(game.timerInterval);
