@@ -170,8 +170,7 @@
     const bgVideo = document.getElementById('bgVideo');
 
     function resize() {
-        const container = document.getElementById('gameContainer');
-        const w = container.clientWidth * 0.94;
+        const w = canvas.parentElement.clientWidth * 0.94;
         const h = w * (5 / 3);
         canvas.width = w;
         canvas.height = h;
@@ -186,8 +185,10 @@
 
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(document.getElementById('gameContainer'));
+    setTimeout(resize, 0);
     setTimeout(resize, 100);
-    setTimeout(resize, 500);
+    setTimeout(resize, 300);
+    setTimeout(resize, 600);
     setTimeout(resize, 1000);
 
     const GAME_DURATION = 60;
