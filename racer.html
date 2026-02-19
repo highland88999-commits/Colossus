@@ -171,9 +171,9 @@
     const bgVideo = document.getElementById('bgVideo');
 
     function resize() {
-        const aspect = 3/5;
-        let w = Math.min(window.innerWidth * 0.94, 440);
-        let h = w / aspect;
+        const container = document.getElementById('gameContainer');
+        const w = container.clientWidth * 0.94;
+        const h = w * (5/3);
         canvas.width = w;
         canvas.height = h;
         canvas.style.width = w + 'px';
@@ -184,8 +184,11 @@
             camera.updateProjectionMatrix();
         }
     }
-    window.addEventListener('resize', resize);
-    resize();
+
+    const resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(document.getElementById('gameContainer'));
+    setTimeout(resize, 100);
+    setTimeout(resize, 500);
 
     const GAME_DURATION = 60;
     let animationFrameId;
@@ -200,7 +203,6 @@
         timerInterval: null
     };
 
-    // Three.js setup (your full model)
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -362,14 +364,12 @@
 
         if (showCredits) {
             finalScoreEl.textContent = Math.floor(game.score);
-            creditsButton.style.display = 'block'; // Show "VIEW CREDITS" button
+            creditsButton.style.display = 'block';
             creditsButton.textContent = "VIEW CREDITS";
             creditsButton.onclick = () => {
-                // First click: show post-credit video
                 bgVideo.src = "https://www.youtube.com/embed/B7FMh3YtK_w?autoplay=1&mute=0&controls=0&modestbranding=1&iv_load_policy=3&rel=0&playsinline=1";
                 creditsOverlay.style.display = 'flex';
                 creditsButton.style.display = 'none';
-                // Second click anywhere restarts
                 creditsOverlay.onclick = () => {
                     creditsOverlay.style.display = 'none';
                     bgVideo.src = "https://www.youtube.com/embed/jwHtU4Zbzu0?autoplay=1&mute=1&controls=0&modestbranding=1&iv_load_policy=3&rel=0&loop=1&playlist=jwHtU4Zbzu0&playsinline=1";
@@ -405,6 +405,8 @@
             if (game.timeRemaining <= 0) timerDisplay.textContent = 'TIME: 0';
         }, 1000);
 
+        bgVideo.contentWindow?.postMessage('{"event":"command","func":"unMute","args":[]}', '*');
+
         update();
     }
 
@@ -423,7 +425,6 @@
     startButton.addEventListener('click', startGame);
     startButton.addEventListener('touchstart', e => { e.preventDefault(); startGame(); }, { passive: false });
 
-    // Initial teaser spin
     function teaserAnimate() {
         podracer.rotation.y += 0.005;
         renderer.render(scene, camera);
