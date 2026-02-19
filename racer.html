@@ -158,6 +158,16 @@
             padding-bottom: 2rem;
         }
 
+        #creditsIframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
         #creditsContent {
             position: absolute;
             bottom: -100%;
@@ -182,6 +192,7 @@
             color: var(--color-secondary-cyan);
             text-shadow: 0 0 10px var(--color-secondary-cyan);
             opacity: 0.9;
+            z-index: 10;
         }
     </style>
 </head>
@@ -206,6 +217,7 @@
     </div>
 
     <div id="creditsScreen" class="modal">
+        <iframe id="creditsIframe" src="https://www.youtube.com/embed/jwHtU4Zbzu0?autoplay=1&mute=0&controls=0&showinfo=0&rel=0&loop=0" allow="autoplay; fullscreen"></iframe>
         <div id="creditsContent">
             <p>NEON STAR RACER</p>
             <p>-------------------</p>
@@ -225,9 +237,9 @@
         <div id="skipText">CLICK OR TAP ANYWHERE TO SKIP & RESTART</div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script type="module">
         const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
         const scoreDisplay = document.getElementById('scoreDisplay');
         const timerDisplay = document.getElementById('timerDisplay');
         const startButton = document.getElementById('startButton');
@@ -247,6 +259,9 @@
             canvas.height = canvas.width / aspect;
             canvas.style.width = canvas.width + 'px';
             canvas.style.height = canvas.height + 'px';
+            if (renderer) renderer.setSize(canvas.width, canvas.height);
+            if (camera) camera.aspect = canvas.width / canvas.height;
+            if (camera) camera.updateProjectionMatrix();
         }
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
@@ -264,59 +279,119 @@
             timerInterval: null
         };
 
+        // Three.js setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+        renderer.setClearColor(0x1a0033);
+
+        // Lighting
+        const light = new THREE.PointLight(0xffffff, 1, 100);
+        light.position.set(10, 10, 10);
+        scene.add(light);
+        scene.add(new THREE.AmbientLight(0x404040));
+
+        // Podracer group
+        const podracer = new THREE.Group();
+
+        // Engines
+        const engineGeo = new THREE.CylinderGeometry(0.5, 0.4, 3, 32);
+        const engineMat = new THREE.MeshPhongMaterial({ color: 0x888888 });
+        
+        const leftEngine = new THREE.Mesh(engineGeo, engineMat);
+        leftEngine.rotation.z = Math.PI / 2;
+        leftEngine.position.set(0, 0, -1.5);
+        
+        const rightEngine = leftEngine.clone();
+        rightEngine.position.set(0, 0, 1.5);
+
+        // Energy Binder
+        const binderGeo = new THREE.TorusGeometry(1.5, 0.05, 16, 100, Math.PI);
+        const binderMat = new THREE.MeshBasicMaterial({ color: 0xbf00ff });
+        const energyBinder = new THREE.Mesh(binderGeo, binderMat);
+        energyBinder.rotation.y = Math.PI / 2;
+        energyBinder.position.set(0, 0, 0);
+
+        // Cockpit
+        const cockpitGeo = new THREE.CapsuleGeometry(0.3, 0.6, 4, 16);
+        const cockpitMat = new THREE.MeshPhongMaterial({ color: 0xcccccc });
+        const cockpit = new THREE.Mesh(cockpitGeo, cockpitMat);
+        cockpit.rotation.z = Math.PI / 2;
+        cockpit.position.set(-5, 0, 0);
+
+        // Cables
+        const cableGeo = new THREE.CylinderGeometry(0.02, 0.02, 5, 8);
+        const cableMat = new THREE.MeshBasicMaterial({ color: 0x333333 });
+        
+        const cableL = new THREE.Mesh(cableGeo, cableMat);
+        cableL.rotation.z = Math.PI / 2;
+        cableL.position.set(-2.5, 0, -1.2);
+        
+        const cableR = cableL.clone();
+        cableR.position.set(-2.5, 0, 1.2);
+
+        podracer.add(leftEngine, rightEngine, energyBinder, cockpit, cableL, cableR);
+        podracer.scale.set(0.5, 0.5, 0.5); // Scale down to fit
+        podracer.position.set(0, -10, 0); // Position at bottom
+        podracer.rotation.x = Math.PI / 2; // Orient properly for top-down view
+        scene.add(podracer);
+
+        camera.position.set(0, 20, 0);
+        camera.lookAt(0, 0, 0);
+
         let pod = {
-            x: 150,
-            y: 440,
-            width: 30,
-            height: 15,
-            targetX: 150,
-            trackLeft: 40,
-            trackRight: 260
+            targetX: 0,
+            trackLeft: -10,
+            trackRight: 10
         };
+        podracer.position.x = 0;
 
         let obstacles = [];
+        let obstacleMeshes = []; // To manage 3D meshes
         let obstacleTimer = 0;
         let obstacleInterval = 90;
 
-        function drawPod() {
-            ctx.save();
-            ctx.fillStyle = '#00e0ff';
-            ctx.beginPath();
-            ctx.moveTo(pod.x, pod.y - 10);
-            ctx.lineTo(pod.x - pod.width / 2, pod.y + pod.height);
-            ctx.lineTo(pod.x + pod.width / 2, pod.y + pod.height);
-            ctx.closePath();
-            ctx.fill();
-            ctx.restore();
-        }
+        function createObstacleMesh(obs) {
+            let mesh;
+            if (obs.type === 'gate') {
+                const group = new THREE.Group();
+                const gateMat = new THREE.MeshBasicMaterial({ color: 0xff00ff });
+                const leftBarGeo = new THREE.BoxGeometry(obs.width, 0.5, 8);
+                const leftBar = new THREE.Mesh(leftBarGeo, gateMat);
+                leftBar.position.set(obs.x + obs.width / 2, obs.y, 0);
+                group.add(leftBar);
 
-        function drawObstacles() {
-            obstacles.forEach(obs => {
-                ctx.fillStyle = obs.type === 'gate' ? '#ff00ff' : '#ff8c00';
-                if (obs.type === 'gate') {
-                    ctx.fillRect(obs.x, obs.y, obs.width, 8);
-                    ctx.fillRect(obs.x + obs.width + obs.gap, obs.y, canvas.width, 8);
-                } else {
-                    ctx.beginPath();
-                    ctx.arc(obs.x, obs.y, 10, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            });
+                const rightWidth = 30 - (obs.x + obs.width + obs.gap); // Adjusted for 3D scale (world width ~30)
+                const rightBarGeo = new THREE.BoxGeometry(rightWidth, 0.5, 8);
+                const rightBar = new THREE.Mesh(rightBarGeo, gateMat);
+                rightBar.position.set(obs.x + obs.width + obs.gap + rightWidth / 2, obs.y, 0);
+                group.add(rightBar);
+
+                mesh = group;
+            } else { // missile/rock
+                const missileGeo = new THREE.SphereGeometry(1, 16, 16); // Simple sphere for now
+                const missileMat = new THREE.MeshBasicMaterial({ color: 0xff8c00 });
+                mesh = new THREE.Mesh(missileGeo, missileMat);
+                mesh.position.set(obs.x, obs.y, 0);
+            }
+            scene.add(mesh);
+            return mesh;
         }
 
         function checkCollision() {
-            const podLeft = pod.x - pod.width / 2;
-            const podRight = pod.x + pod.width / 2;
-            const podTop = pod.y - 10;
-            const podBottom = pod.y + pod.height;
+            const podLeft = podracer.position.x - 2; // Approximate bounds
+            const podRight = podracer.position.x + 2;
+            const podTop = podracer.position.y + 2;
+            const podBottom = podracer.position.y - 2;
 
-            for (let obs of obstacles) {
-                if (podBottom >= obs.y && podTop <= obs.y + 10) {
+            for (let i = 0; i < obstacles.length; i++) {
+                const obs = obstacles[i];
+                if (podBottom >= obs.y - 1 && podTop <= obs.y + 1) {
                     if (obs.type === 'gate') {
-                        if (podLeft < obs.x + obs.width || podRight > obs.x + obs.width + obs.gap) return true;
+                        if (podRight < obs.x + obs.width || podLeft > obs.x + obs.width + obs.gap) return true;
                     } else {
-                        const dist = Math.hypot(pod.x - obs.x, pod.y - obs.y);
-                        if (dist < 20) return true;
+                        const dist = Math.hypot(podracer.position.x - obs.x, podracer.position.y - obs.y);
+                        if (dist < 3) return true;
                     }
                 }
             }
@@ -325,15 +400,15 @@
 
         function update() {
             if (!game.isRunning) return;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             if (game.timeRemaining <= 0) {
-                endGame("YOU SURVIVED!", true); // true = show credits
+                endGame("YOU SURVIVED!", true);
                 return;
             }
 
-            pod.x += (pod.targetX - pod.x) * 0.3;
-            pod.x = Math.max(pod.trackLeft, Math.min(pod.trackRight, pod.x));
+            // Move pod toward targetX
+            podracer.position.x += (pod.targetX - podracer.position.x) * 0.3;
+            podracer.position.x = Math.max(pod.trackLeft, Math.min(pod.trackRight, podracer.position.x));
 
             game.score += game.speed / 15;
             scoreDisplay.textContent = `Score: ${Math.floor(game.score)}`;
@@ -341,23 +416,54 @@
 
             obstacleTimer++;
             if (obstacleTimer > obstacleInterval) {
-                const gap = 85;
-                const obsX = 30 + Math.random() * (canvas.width - gap - 60);
-                obstacles.push({ x: 0, y: -20, width: obsX, gap: gap, type: Math.random() > 0.3 ? 'gate' : 'rock' });
+                const gap = 5; // Scaled for 3D
+                const worldWidth = 30;
+                const obsX = 3 + Math.random() * (worldWidth - gap - 6);
+                let obs = {
+                    x: -15, // Left edge in world coords
+                    y: 20, // Start far (top in 2D, far in 3D y? Wait, using y as depth
+                    width: obsX,
+                    gap: gap,
+                    type: Math.random() > 0.3 ? 'gate' : 'missile'
+                };
+                if (obs.type === 'missile') {
+                    obs.x = pod.trackLeft + Math.random() * (pod.trackRight - pod.trackLeft);
+                    delete obs.width;
+                    delete obs.gap;
+                }
+                obstacles.push(obs);
+                obstacleMeshes.push(createObstacleMesh(obs));
                 obstacleTimer = 0;
                 obstacleInterval = Math.max(40, obstacleInterval - 0.2);
             }
 
-            obstacles.forEach(o => o.y += game.speed);
-            obstacles = obstacles.filter(o => o.y < canvas.height);
+            // Move obstacles towards pod (decrease y)
+            for (let i = 0; i < obstacles.length; i++) {
+                obstacles[i].y -= game.speed / 2; // Adjust speed for 3D scale
+                obstacleMeshes[i].position.y = obstacles[i].y;
+                if (obstacles[i].type === 'gate') {
+                    obstacleMeshes[i].children[0].position.y = obstacles[i].y;
+                    obstacleMeshes[i].children[1].position.y = obstacles[i].y;
+                }
+            }
+
+            // Remove offscreen
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                if (obstacles[i].y < -20) {
+                    scene.remove(obstacleMeshes[i]);
+                    obstacles.splice(i, 1);
+                    obstacleMeshes.splice(i, 1);
+                }
+            }
 
             if (checkCollision()) {
                 endGame("POD CRASHED!", false);
                 return;
             }
 
-            drawObstacles();
-            drawPod();
+            podracer.rotation.z += 0.005; // Gentle rotation for effect
+
+            renderer.render(scene, camera);
             animationFrameId = requestAnimationFrame(update);
         }
 
@@ -368,9 +474,13 @@
             modalTitle.textContent = title;
             finalScoreDisplay.textContent = Math.floor(game.score);
 
+            // Clean up obstacles
+            obstacleMeshes.forEach(mesh => scene.remove(mesh));
+            obstacles = [];
+            obstacleMeshes = [];
+
             if (showCredits) {
                 creditsScreen.style.display = 'flex';
-                // Optional: restart after credits finish (fallback)
                 setTimeout(() => {
                     if (creditsScreen.style.display === 'flex') restartGame();
                 }, 20000);
@@ -385,11 +495,10 @@
             game.speed = 3.5;
             game.timeRemaining = GAME_DURATION;
             obstacles = [];
+            obstacleMeshes = [];
             obstacleInterval = 90;
-            pod.x = canvas.width / 2;
-            pod.targetX = canvas.width / 2;
-            pod.trackLeft = 40;
-            pod.trackRight = canvas.width - 40;
+            pod.targetX = 0;
+            podracer.position.x = 0;
             gameOverModal.style.display = 'none';
             creditsScreen.style.display = 'none';
             timerDisplay.style.display = 'block';
@@ -408,28 +517,29 @@
             startGame();
         }
 
-        // Input handling (updated for responsive canvas)
+        // Input handling (map to 3D world)
         function getPointerX(e) {
             const rect = canvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            return clientX - rect.left;
+            const canvasX = (clientX - rect.left) / rect.width * 2 - 1;
+            pod.targetX = canvasX * 10; // Scale to world coords (-10 to 10)
         }
 
         canvas.addEventListener('mousemove', e => {
             if (!game.isRunning) return;
-            pod.targetX = getPointerX(e);
+            getPointerX(e);
         });
 
         canvas.addEventListener('touchmove', e => {
             e.preventDefault();
             if (!game.isRunning) return;
-            pod.targetX = getPointerX(e);
+            getPointerX(e);
         }, { passive: false });
 
-        canvas.addEventListener('mousedown', e => { if (game.isRunning) pod.targetX = getPointerX(e); });
+        canvas.addEventListener('mousedown', e => { if (game.isRunning) getPointerX(e); });
         canvas.addEventListener('touchstart', e => {
             e.preventDefault();
-            if (game.isRunning) pod.targetX = getPointerX(e);
+            if (game.isRunning) getPointerX(e);
         }, { passive: false });
 
         // Credits skip
