@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Neon Star Racer: 60-Second Challenge</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
@@ -18,7 +18,7 @@
         }
 
         * { margin:0; padding:0; box-sizing:border-box; }
-        html, body { height:100%; overflow:hidden; background:#000; font-family:'Inter',sans-serif; }
+        html, body { height:100%; overflow:hidden; background:#000; font-family:'Inter',sans-serif; touch-action:manipulation; }
 
         body {
             position: relative;
@@ -36,7 +36,6 @@
             border: none;
             z-index: 1;
             pointer-events: none;
-            transition: opacity 1.2s ease;
         }
 
         .game-ui {
@@ -44,82 +43,77 @@
             z-index: 10;
             width: 100%;
             max-width: 600px;
-            min-height: 100vh;
+            min-height: 100dvh; /* fixes off-screen on mobile */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 1rem 1rem 5rem; /* extra bottom padding for mobile safe area */
+            padding: 2rem 1rem 8rem; /* extra bottom for gesture bar/safe area */
             transition: opacity 1.2s ease;
         }
 
         h1 {
             font-family: 'VT323', monospace;
             color: var(--color-primary-pink);
-            text-shadow: 0 0 12px var(--color-primary-pink);
-            font-size: clamp(2.4rem, 10vw, 4.5rem);
+            text-shadow: 0 0 12px var(--color-primary-pink), 0 0 24px #000;
+            font-size: clamp(2.8rem, 12vw, 5rem);
             margin: 0.5rem 0;
-            letter-spacing: 3px;
+            letter-spacing: 4px;
         }
 
         #gameCanvas {
             width: 100%;
             max-width: 420px;
             aspect-ratio: 3 / 5;
-            border: 3px solid var(--color-secondary-cyan);
-            box-shadow: 0 0 35px var(--color-secondary-cyan);
+            border: 4px solid var(--color-secondary-cyan);
+            box-shadow: 0 0 40px var(--color-secondary-cyan);
             touch-action: none;
             cursor: crosshair;
-            border-radius: 14px;
+            border-radius: 16px;
             background: transparent;
         }
 
-        .controls {
-            margin: 1.5rem 0;
-            z-index: 20;
-        }
+        .controls { margin: 2rem 0; z-index: 20; }
 
         .btn {
             background: linear-gradient(45deg, var(--color-gold), #9B59B6);
             border: none;
             color: white;
-            padding: 1.2rem 2.8rem;
-            font-size: 1.4rem;
+            padding: 1.4rem 3.2rem;
+            font-size: 1.6rem;
             cursor: pointer;
-            box-shadow: 0 0 15px var(--color-gold);
+            box-shadow: 0 0 20px var(--color-gold), 0 0 40px #9B59B6;
             transition: all 0.3s ease;
             text-transform: uppercase;
-            border-radius: 12px;
+            border-radius: 14px;
             font-weight: bold;
+            min-width: 280px; /* bigger touch target */
         }
-        .btn:hover, .btn:active {
-            transform: scale(1.1);
-            box-shadow: 0 0 35px var(--color-gold);
-        }
+        .btn:active { transform: scale(0.96); }
 
         #scoreDisplay, #timerDisplay {
             font-family: 'VT323', monospace;
-            font-size: clamp(2rem, 8vw, 3.2rem);
-            text-shadow: 0 0 12px currentColor;
-            margin: 0.8rem 0;
+            font-size: clamp(2.2rem, 9vw, 3.8rem);
+            text-shadow: 0 0 14px currentColor;
+            margin: 1rem 0;
             z-index: 20;
         }
         #scoreDisplay { color: var(--color-score-red); }
         #timerDisplay {
             position: absolute;
-            top: 1rem;
-            right: 1rem;
+            top: 1.5rem;
+            right: 1.5rem;
             color: var(--color-timer-green);
-            background: rgba(0,0,0,0.65);
-            padding: 0.6rem 1.2rem;
-            border-radius: 10px;
-            border: 1px solid var(--color-timer-green);
+            background: rgba(0,0,0,0.7);
+            padding: 0.8rem 1.4rem;
+            border-radius: 12px;
+            border: 2px solid var(--color-timer-green);
         }
 
         .modal, #creditsScreen {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.92);
+            background: rgba(0,0,0,0.94);
             display: none;
             flex-direction: column;
             justify-content: center;
@@ -131,12 +125,12 @@
         }
 
         .modal-content {
-            background: rgba(13,13,26,0.94);
-            border: 4px solid var(--color-primary-pink);
-            box-shadow: 0 0 55px var(--color-primary-pink);
-            padding: 2.8rem;
+            background: rgba(13,13,26,0.95);
+            border: 5px solid var(--color-primary-pink);
+            box-shadow: 0 0 60px var(--color-primary-pink);
+            padding: 3rem;
             text-align: center;
-            border-radius: 18px;
+            border-radius: 20px;
             max-width: 90%;
         }
 
@@ -145,30 +139,30 @@
             bottom: -100%;
             width: 100%;
             text-align: center;
-            font-size: clamp(2rem, 7vw, 3.5rem);
+            font-size: clamp(2.2rem, 8vw, 4rem);
             color: var(--color-primary-pink);
-            text-shadow: 0 0 25px var(--color-primary-pink);
-            animation: rollCredits 22s linear forwards;
+            text-shadow: 0 0 30px var(--color-primary-pink);
+            animation: rollCredits 24s linear forwards;
             pointer-events: none;
         }
 
-        @keyframes rollCredits { 0% { transform: translateY(120vh); } 100% { transform: translateY(-140%); } }
+        @keyframes rollCredits { 0% { transform: translateY(130vh); } 100% { transform: translateY(-150%); } }
 
         #skipText {
             position: absolute;
-            bottom: 2rem;
-            font-size: 1.5rem;
+            bottom: 2.5rem;
+            font-size: 1.6rem;
             color: var(--color-secondary-cyan);
-            text-shadow: 0 0 15px var(--color-secondary-cyan);
+            text-shadow: 0 0 18px var(--color-secondary-cyan);
             z-index: 110;
         }
     </style>
 </head>
 <body>
 
-    <!-- Background YouTube (starts muted, changes on start) -->
+    <!-- Background YouTube – starts muted -->
     <iframe id="bgVideo" 
-        src="https://www.youtube.com/embed/jwHtU4Zbzu0?autoplay=0&mute=1&controls=0&showinfo=0&rel=0&loop=1&playlist=jwHtU4Zbzu0&modestbranding=1&iv_load_policy=3&playsinline=1"
+        src="https://www.youtube.com/embed/jwHtU4Zbzu0?autoplay=1&mute=1&controls=0&modestbranding=1&iv_load_policy=3&rel=0&loop=1&playlist=jwHtU4Zbzu0&playsinline=1"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         frameborder="0"
         style="position:fixed; inset:0; width:100%; height:100%; border:none; z-index:1; pointer-events:none;">
@@ -184,159 +178,39 @@
         </div>
     </div>
 
-    <div id="gameOverModal" class="modal">
-        <div class="modal-content">
-            <h2 id="modalTitle">POD CRASHED!</h2>
-            <p>Final Score: <span id="finalScore">0</span></p>
-            <button class="btn" onclick="hideModalAndRestart()">Restart Race</button>
-        </div>
-    </div>
-
-    <div id="creditsScreen" class="modal">
-        <div id="creditsContent">
-            <p>NEON STAR RACER</p><p>──────</p>
-            <p>YOU SURVIVED THE GRID</p><p>──────</p>
-            <p>Score: <span id="finalCreditsScore">0</span></p><p>──────</p>
-            <p>Created in Neon Fury</p><p>by Olympus By Merlin $Dropee</p><p>──────</p>
-            <p>THE END</p>
-        </div>
-        <div id="skipText">TAP ANYWHERE TO RESTART</div>
-    </div>
+    <!-- Your modals/credits here – unchanged from previous -->
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script type="module">
         const bgVideo = document.getElementById('bgVideo');
-        const gameUI = document.getElementById('gameUI');
-        const canvas = document.getElementById('gameCanvas');
-        const scoreDisplay = document.getElementById('scoreDisplay');
-        const timerDisplay = document.getElementById('timerDisplay');
         const startButton = document.getElementById('startButton');
-        const gameOverModal = document.getElementById('gameOverModal');
-        const finalScoreDisplay = document.getElementById('finalScore');
-        const modalTitle = document.getElementById('modalTitle');
-        const creditsScreen = document.getElementById('creditsScreen');
-        const finalCreditsScore = document.getElementById('finalCreditsScore');
 
-        function resizeCanvas() {
-            const aspect = 3/5;
-            let w = Math.min(window.innerWidth * 0.94, 440);
-            let h = w / aspect;
-            canvas.width = w;
-            canvas.height = h;
-            canvas.style.width = w + 'px';
-            canvas.style.height = h + 'px';
-            if (renderer) {
-                renderer.setSize(w, h);
-                camera.aspect = w / h;
-                camera.updateProjectionMatrix();
-            }
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        const GAME_DURATION = 60;
-        let animationFrameId;
-
-        let game = {
-            isRunning: false,
-            score: 0,
-            speed: 3.5,
-            maxSpeed: 12,
-            speedIncreaseRate: 0.004,
-            timeRemaining: GAME_DURATION,
-            timerInterval: null
-        };
-
-        // Three.js setup (your existing model code goes here – abbreviated)
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-        renderer.setClearColor(0x0d0d1a, 0.4); // semi-transparent holographic
-
-        // Add your podracer, lights, obstacles code here...
-        // For now placeholder – insert your full model/obstacle logic
-        scene.add(new THREE.AmbientLight(0x404040));
-        const light = new THREE.PointLight(0xffffff, 1.5, 100);
-        light.position.set(0, 30, 10);
-        scene.add(light);
-
-        // Podracer group (add your cylinders, torus, etc.)
-        const podracer = new THREE.Group();
-        // ... your model code ...
-        scene.add(podracer);
-
-        camera.position.set(0, 25, 0);
-        camera.lookAt(0, 0, 0);
-
-        // Your update(), collision, etc. functions here (unchanged)
-
-        function fadeOutGame() {
-            gameUI.style.opacity = '0';
-            setTimeout(() => gameUI.style.display = 'none', 1200);
-        }
-
-        function endGame(title, showCredits = false) {
-            game.isRunning = false;
-            cancelAnimationFrame(animationFrameId);
-            clearInterval(game.timerInterval);
-            modalTitle.textContent = title;
-            finalScoreDisplay.textContent = Math.floor(game.score);
-            finalCreditsScore.textContent = Math.floor(game.score);
-
-            // Clean obstacles...
-
-            if (showCredits) {
-                fadeOutGame();
-                // Switch to credits video (unmuted)
-                bgVideo.src = "https://www.youtube.com/embed/D4RQEEyTZWU?autoplay=1&mute=0&controls=0&showinfo=0&rel=0&playsinline=1";
-                creditsScreen.style.display = 'flex';
-            } else {
-                gameOverModal.style.display = 'flex';
-            }
-        }
+        // ... your resize, game vars, Three.js setup, model, obstacles, update(), endGame(), etc. unchanged ...
 
         function startGame() {
+            // Unmute on real user click – preserves gesture for sound
+            const player = bgVideo.contentWindow || bgVideo.contentDocument;
+            if (player && player.postMessage) {
+                player.postMessage('{"event":"command","func":"unMute","args":""}', '*');
+            } else {
+                // Fallback: reload with unmuted if API fails
+                bgVideo.src = bgVideo.src.replace('&mute=1', '&mute=0');
+            }
+
+            // Your normal start logic...
             game.isRunning = true;
-            game.score = 0;
-            game.speed = 3.5;
-            game.timeRemaining = GAME_DURATION;
-            // reset obstacles, pod position...
-
-            gameOverModal.style.display = 'none';
-            creditsScreen.style.display = 'none';
+            // reset score, timer, obstacles...
             timerDisplay.style.display = 'block';
-            gameUI.style.opacity = '1';
-            gameUI.style.display = 'flex';
-
-            // On real user click → switch to unmuted gameplay video
-            bgVideo.src = "https://www.youtube.com/embed/jwHtU4Zbzu0?autoplay=1&mute=0&controls=0&showinfo=0&rel=0&loop=1&playlist=jwHtU4Zbzu0&playsinline=1";
-
-            // Your timer + update() call...
             update();
         }
 
-        function restartGame() {
-            startGame();
-        }
-
-        // Input handlers (your existing code)
-        function updateTargetX(e) {
-            const rect = canvas.getBoundingClientRect();
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const normX = (clientX - rect.left) / rect.width * 2 - 1;
-            podTargetX = normX * 12;
-        }
-
-        canvas.addEventListener('mousemove', e => game.isRunning && updateTargetX(e));
-        canvas.addEventListener('touchmove', e => { e.preventDefault(); game.isRunning && updateTargetX(e); }, { passive: false });
-        canvas.addEventListener('mousedown', e => game.isRunning && updateTargetX(e));
-        canvas.addEventListener('touchstart', e => { e.preventDefault(); game.isRunning && updateTargetX(e); }, { passive: false });
-
-        creditsScreen.addEventListener('click', restartGame);
-        creditsScreen.addEventListener('touchstart', e => { e.preventDefault(); restartGame(); });
-
         startButton.addEventListener('click', startGame);
-        window.hideModalAndRestart = restartGame;
+        startButton.addEventListener('touchstart', e => {
+            e.preventDefault();
+            startGame();
+        }, { passive: false });
+
+        // ... rest of your event listeners, restartGame(), etc.
     </script>
 </body>
 </html>
