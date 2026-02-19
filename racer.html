@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Neon Star Racer</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
@@ -35,16 +35,15 @@
             justify-content: center;
             padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
             position: relative;
-            transition: opacity 1.2s ease;
         }
 
         h1 {
             font-family: 'VT323', monospace;
             color: var(--pink);
             text-shadow: 0 0 12px var(--pink);
-            font-size: clamp(2.2rem, 10vw, 4.5rem);
-            margin: 0.5rem 0;
-            letter-spacing: 3px;
+            font-size: clamp(2.4rem, 10vw, 5rem);
+            margin: 0.6rem 0;
+            letter-spacing: 4px;
             z-index: 20;
         }
 
@@ -62,7 +61,7 @@
 
         #scoreDisplay, #timerDisplay {
             font-family: 'VT323', monospace;
-            font-size: clamp(2rem, 8vw, 3.5rem);
+            font-size: clamp(2.2rem, 9vw, 3.8rem);
             text-shadow: 0 0 14px currentColor;
             margin: 0.8rem 0;
             z-index: 20;
@@ -83,8 +82,8 @@
             background: linear-gradient(45deg, var(--gold), #9B59B6);
             border: none;
             color: white;
-            padding: 1.2rem 3rem;
-            font-size: 1.5rem;
+            padding: 1.4rem 3.2rem;
+            font-size: 1.6rem;
             cursor: pointer;
             box-shadow: 0 0 20px var(--gold);
             transition: all 0.3s;
@@ -92,7 +91,7 @@
             border-radius: 12px;
             font-weight: bold;
             margin: 2rem 0;
-            min-width: 260px;
+            min-width: 280px;
             z-index: 20;
         }
         #startButton:active, #creditsButton:active { transform: scale(0.96); }
@@ -173,7 +172,7 @@
     function resize() {
         const container = document.getElementById('gameContainer');
         const w = container.clientWidth * 0.94;
-        const h = w * (5/3);
+        const h = w * (5 / 3);
         canvas.width = w;
         canvas.height = h;
         canvas.style.width = w + 'px';
