@@ -9,89 +9,76 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Courier New', monospace; }
 
-        /* Video Container */
+        /* Video Layer */
         .video-layer {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1; overflow: hidden; background: #000;
+            position: fixed; inset: 0; z-index: -1; overflow: hidden; background: #000;
         }
-
         video {
-            position: absolute; top: 50%; left: 50%;
-            min-width: 100%; min-height: 100%;
-            width: auto; height: auto;
-            transform: translate(-50%, -50%);
-            object-fit: cover;
-            transition: opacity 1.5s ease-in-out;
+            position: absolute; inset: 0; width: 100%; height: 100%;
+            object-fit: cover; transition: opacity 1.5s ease-in-out;
         }
-        
-        /* Initial Landing Video State */
-        #landing-video { opacity: 1; filter: brightness(0.8) contrast(1.1); z-index: 10; }
-        
-        /* Main Background State (Hidden at start) */
-        #bg-video { opacity: 0; filter: brightness(0.4) contrast(1.2); z-index: 5; }
+        #landing-video { opacity: 1; filter: brightness(0.8) contrast(1.1); }
+        #bg-video { opacity: 0; filter: brightness(0.4) contrast(1.2); }
 
-        /* Landing Screen Overlay */
+        /* Landing Gate (double-tap friendly) */
         #landing-gate {
             position: fixed; inset: 0; z-index: 100;
-            background: rgba(0,0,0,0.2); 
+            background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
             display: flex; justify-content: center; align-items: center;
-            backdrop-filter: blur(2px);
             transition: opacity 1s ease;
         }
-        
         .gate-btn {
-            padding: 22px 50px; border: 2px solid var(--g); 
-            color: var(--g); background: rgba(0,0,0,0.85); 
-            cursor: pointer; letter-spacing: 8px; font-weight: bold;
-            font-size: 1.4rem; text-shadow: 0 0 15px var(--g);
-            box-shadow: 0 0 25px rgba(57, 255, 20, 0.3), inset 0 0 15px rgba(57, 255, 20, 0.2);
+            padding: 24px 60px; border: 3px solid var(--g); 
+            color: var(--g); background: rgba(0,0,0,0.9); 
+            cursor: pointer; letter-spacing: 10px; font-weight: bold;
+            font-size: 1.6rem; text-shadow: 0 0 20px var(--g);
+            box-shadow: 0 0 40px rgba(57,255,20,0.5);
             transition: all 0.4s;
             text-transform: uppercase;
         }
-        .gate-btn:hover { background: var(--g); color: #000; box-shadow: 0 0 50px var(--g); }
+        .gate-btn:active { transform: scale(0.96); box-shadow: 0 0 60px var(--g); }
 
-        /* Navigation Dock */
+        /* Dock */
         #dock {
             position: fixed; bottom: env(safe-area-inset-bottom, 30px);
             left: 50%; transform: translateX(-50%);
             display: flex; gap: 45px; padding: 18px 50px;
             background: rgba(0,0,0,0.92); border: 1px solid var(--p);
             border-radius: 60px; z-index: 1000; backdrop-filter: blur(20px);
-            opacity: 0; pointer-events: none; transition: opacity 1.2s ease;
-            box-shadow: 0 0 40px rgba(188, 19, 254, 0.2);
+            opacity: 0; pointer-events: none; transition: opacity 1.5s ease;
+            box-shadow: 0 0 40px rgba(188,19,254,0.3);
         }
-        .icon { width: 48px; height: 48px; cursor: pointer; transition: 0.3s; filter: drop-shadow(0 0 8px var(--p)); }
-        .icon:hover { transform: scale(1.25) translateY(-8px); filter: drop-shadow(0 0 15px var(--p)); }
+        .icon { width: 50px; height: 50px; cursor: pointer; transition: 0.3s; filter: drop-shadow(0 0 10px var(--p)); }
+        .icon:active { transform: scale(0.9) translateY(-6px); }
 
-        /* Full Immersive Game Frame */
+        /* Holoframe */
         #holoframe {
-            display: none; position: fixed; 
-            inset: 0; background: #000;
-            z-index: 5000; flex-direction: column;
+            display: none; position: fixed; inset: 0; background: #000; z-index: 5000;
+            flex-direction: column;
         }
         .frame-header {
             padding: 15px 30px; display: flex; justify-content: space-between;
-            background: rgba(20, 20, 20, 0.95); border-bottom: 1px solid var(--p);
-            color: var(--g); font-size: 0.8rem; letter-spacing: 3px;
+            background: rgba(20,20,20,0.95); border-bottom: 1px solid var(--p);
+            color: var(--g); font-size: 0.9rem; letter-spacing: 3px;
         }
         #nexus-iframe { flex: 1; border: none; width: 100%; height: 100%; background: #000; }
-        .close-btn { cursor: pointer; color: #ff3366; font-weight: bold; padding: 5px 10px; border: 1px solid #ff3366; border-radius: 4px; }
+        .close-btn { cursor: pointer; color: #ff3366; font-weight: bold; padding: 6px 12px; border: 1px solid #ff3366; border-radius: 6px; }
     </style>
 </head>
 <body>
 
 <div class="video-layer">
-    <video id="bg-video" muted playsinline loop preload="auto">
-        <source src="https://www.dropbox.com/scl/fi/13paev0odpa61tpjpm9n2/Image_To_Video-9.mp4?rlkey=6a07rmjobwagvwaq9z3029ge8&raw=1" type="video/mp4">
-    </video>
-
     <video id="landing-video" muted playsinline loop autoplay preload="auto">
         <source src="https://www.dropbox.com/scl/fi/eq3c5xrlrqmsqs5poyl3u/Make_the_words_.mp4?rlkey=5p5pysbnhwt1lyq2et9blvgks&raw=1" type="video/mp4">
+    </video>
+
+    <video id="bg-video" muted playsinline loop preload="auto">
+        <source src="https://www.dropbox.com/scl/fi/13paev0odpa61tpjpm9n2/Image_To_Video-9.mp4?rlkey=6a07rmjobwagvwaq9z3029ge8&raw=1" type="video/mp4">
     </video>
 </div>
 
 <div id="landing-gate">
-    <button class="gate-btn" onclick="initializeSystem()">Initialize Build</button>
+    <button class="gate-btn" onclick="initializeSystem()">TAP TO ENTER</button>
 </div>
 
 <div id="dock">
@@ -108,48 +95,50 @@
         <span id="mod-title">CONNECTION_ESTABLISHED</span>
         <span class="close-btn" onclick="closeFrame()">DISCONNECT</span>
     </div>
-    <iframe id="nexus-iframe" allow="autoplay; fullscreen;"></iframe>
+    <iframe id="nexus-iframe" allow="autoplay; fullscreen; picture-in-picture"></iframe>
 </div>
 
 <script>
-    // Force play landing video on load (if browser allows)
-    window.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('landing-video').play().catch(() => {
-            console.log("Waiting for user interaction to play video...");
-        });
+    // Try to play landing video immediately (muted + loop + autoplay)
+    const landingVid = document.getElementById('landing-video');
+    landingVid.play().catch(() => {
+        console.log("Autoplay blocked → waiting for user tap");
     });
 
     function initializeSystem() {
         const gate = document.getElementById('landing-gate');
-        const landVid = document.getElementById('landing-video');
-        const mainVid = document.getElementById('bg-video');
+        const bgVid = document.getElementById('bg-video');
         const dock = document.getElementById('dock');
 
-        // Play the background video immediately (User gesture allows this now)
-        mainVid.play();
-        
-        // Transition sequences
+        // First tap: remove gate, fade landing video, start bg video
         gate.style.opacity = '0';
-        landVid.style.opacity = '0';
-        mainVid.style.opacity = '1';
-        
+        landingVid.style.opacity = '0';
+        bgVid.style.opacity = '1';
+
+        // Play bg video (user gesture allows unmuted if needed, but keep muted here)
+        bgVid.play().catch(() => {});
+
         setTimeout(() => {
             gate.style.display = 'none';
-            landVid.pause(); 
+            landingVid.pause();
             dock.style.opacity = '1';
             dock.style.pointerEvents = 'auto';
-        }, 1200);
+        }, 1500);
     }
 
     function launch(url, title) {
         document.getElementById('mod-title').innerText = "COLOSSUS_LINK :: " + title;
         document.getElementById('nexus-iframe').src = url;
         document.getElementById('holoframe').style.display = 'flex';
+        // Optional: pause bg video while in game
+        // document.getElementById('bg-video').pause();
     }
 
     function closeFrame() {
         document.getElementById('holoframe').style.display = 'none';
-        document.getElementById('nexus-iframe').src = ''; 
+        document.getElementById('nexus-iframe').src = '';
+        // Optional: resume bg video
+        // document.getElementById('bg-video').play();
     }
 </script>
 </body>
