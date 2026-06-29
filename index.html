@@ -164,5 +164,43 @@
         ifr.src = ''; // Unload to stop game audio
     }
 </script>
+
+<script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+    const trackingUrl = 'https://ezfwzqxwafvdjtwnmyrx.supabase.co';
+    const trackingKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV6Znd6cXh3YWZ2ZGp0d25teXJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwOTA2NzIsImV4cCI6MjA5NzY2NjY3Mn0.baxnDWZ9rSZobzqnAOND7SuJpXbl4wmRyUYTQl4whPE';
+    const trackingClient = createClient(trackingUrl, trackingKey);
+
+    function getSafeVisitorId() {
+        let id = localStorage.getItem('nexus_visitor_id');
+        if (!id) {
+            if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+                id = crypto.randomUUID();
+            } else {
+                id = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            }
+            localStorage.setItem('nexus_visitor_id', id);
+        }
+        return id;
+    }
+
+    async function silentUplink() {
+        try {
+            const visitorId = getSafeVisitorId();
+            await trackingClient.rpc('track_ping', { p_ip_hash: visitorId });
+            console.log("Colossus Node: Telemetry uplink successful.");
+        } catch (error) {
+            console.error("Colossus Node Telemetry Error:", error);
+        }
+    }
+
+    window.addEventListener('load', () => {
+        silentUplink();
+        setInterval(silentUplink, 60000); 
+    });
+</script>
 </body>
 </html>
