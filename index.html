@@ -6,169 +6,44 @@
     <meta name="google" content="notranslate" />
     <title>OLYMPUS ⚡️ COLOSSEUM</title>
     <meta property="og:title" content="COLOSSEUM CONSOLE" />
-    meta property="og:description" content="[STATION_IDENTIFIED: NEXUS_VORTEX] :: Initializing Colossus Environment. Secure connection established. Accessing decentralized vaults and neon-realms." />
+    <meta property="og:description" content="[STATION_IDENTIFIED: NEXUS_VORTEX] :: Initializing Colossus Environment. Secure connection established." />
     <meta name="description" content="Secure gateway to the Colosseum. Initialize connection to deploy the Console." />
     <style>
         :root { --p: #bc13fe; --g: #39ff14; --cyber-blue: #00f3ff; }
-        
-        /* Device Adaptability & Disabling Dictionary/Text Selection Popups */
-        * { 
-            margin: 0; padding: 0; box-sizing: border-box; 
-            -webkit-tap-highlight-color: transparent; 
-            -webkit-touch-callout: none; 
-            -webkit-user-select: none; 
-            user-select: none;
-        }
-        
-        body, html { 
-            width: 100%; height: 100%; overflow: hidden; 
-            background: #000; font-family: 'Courier New', monospace; 
-            touch-action: none;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Courier New', monospace; touch-action: none; }
 
-        /* Video Layering */
-        .video-container {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1; overflow: hidden; pointer-events: none;
-        }
-
-        video {
-            position: absolute; top: 50%; left: 50%;
-            min-width: 100%; min-height: 100%;
-            width: auto; height: auto;
-            transform: translate(-50%, -50%);
-            object-fit: cover;
-            transition: opacity 1.2s ease;
-        }
-        
+        .video-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; overflow: hidden; pointer-events: none; }
+        video { position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; transform: translate(-50%, -50%); object-fit: cover; transition: opacity 1.2s ease; }
         #landing-video { z-index: 10; opacity: 1; }
         #bg-video { z-index: 5; opacity: 0; filter: brightness(0.5); }
 
-        /* Multi-Stage Landing Gate */
-        #landing-gate {
-            position: fixed; inset: 0; z-index: 100;
-            background: rgba(0,0,0,0.6);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            backdrop-filter: blur(10px);
-            transition: all 0.8s ease;
-        }
-        
-        .gate-btn {
-            padding: 25px 60px; border: 2px solid var(--g); 
-            color: var(--g); background: rgba(0,0,0,0.9); 
-            cursor: pointer; letter-spacing: 10px; font-weight: bold;
-            font-size: 1.5rem; text-shadow: 0 0 15px var(--g);
-            box-shadow: 0 0 30px rgba(57, 255, 20, 0.3);
-            text-transform: uppercase;
-            transition: 0.3s;
-        }
-        .gate-btn:hover { background: var(--g); color: #000; box-shadow: 0 0 50px var(--g); }
+        #landing-gate { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.6); display: flex; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(10px); transition: all 0.8s ease; }
+        .gate-btn { padding: 25px 60px; border: 2px solid var(--g); color: var(--g); background: rgba(0,0,0,0.9); cursor: pointer; letter-spacing: 10px; font-weight: bold; font-size: 1.5rem; text-transform: uppercase; transition: 0.3s; }
+        .gate-btn:hover { background: var(--g); color: #000; }
+        #btn-stage-2 { display: none; border-color: var(--p); color: var(--p); }
 
-        #btn-stage-2 { display: none; border-color: var(--p); color: var(--p); text-shadow: 0 0 15px var(--p); box-shadow: 0 0 30px rgba(188, 19, 254, 0.3); }
+        /* Smaller Dock */
+        #dock { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 380px; display: grid; grid-template-columns: repeat(4, 1fr); justify-items: center; gap: 8px; padding: 10px; background: rgba(0, 0, 0, 0.5); border-radius: 15px; backdrop-filter: blur(6px); z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 1.5s; }
+        .icon { width: 50px; height: 50px; background: rgba(10, 10, 10, 0.9); border: 1.5px solid #333; border-radius: 12px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.3s; }
+        .icon svg { width: 24px; height: 24px; pointer-events: none; }
+        .icon:hover { transform: scale(1.1); border-color: var(--p); }
 
-        /* Navigation Dock */
-        #dock {
-            position: fixed; 
-            bottom: env(safe-area-inset-bottom, 20px);
-            left: 50%; 
-            transform: translateX(-50%);
-            width: 100%;
-            max-width: 420px; 
-            max-height: 40vh; 
-            display: grid; 
-            grid-template-columns: repeat(4, 1fr); 
-            justify-items: center;
-            gap: 15px 10px; 
-            padding: 15px 20px;
-            overflow-y: auto; 
-            overflow-x: hidden;
-            z-index: 1000; 
-            opacity: 0; 
-            pointer-events: none; 
-            transition: opacity 1.5s;
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 20px;
-            backdrop-filter: blur(4px);
-            scrollbar-width: thin;
-            scrollbar-color: var(--p) transparent;
-        }
-        
-        #dock::-webkit-scrollbar { width: 6px; }
-        #dock::-webkit-scrollbar-track { background: transparent; }
-        #dock::-webkit-scrollbar-thumb { background: var(--p); border-radius: 10px; }
-
-        /* Independent Icons */
-        .icon { 
-            width: 65px; height: 65px; 
-            background: rgba(10, 10, 10, 0.85);
-            border: 2px solid #333;
-            border-radius: 16px;
-            display: flex; justify-content: center; align-items: center;
-            cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
-        }
-        .icon svg { 
-            width: 32px; height: 32px; 
-            transition: 0.3s;
-            pointer-events: none;
-        }
-        
-        .icon:hover { 
-            transform: scale(1.15) translateY(-5px); 
-            border-color: inherit;
-        }
-        .icon:hover svg {
-            filter: drop-shadow(0 0 10px currentColor);
-        }
-
-        .icon[title="STAKE VAULT"]:hover { border-color: var(--cyber-blue); box-shadow: 0 10px 25px rgba(0, 243, 255, 0.4); }
-        .icon[title="NEON RACER"]:hover { border-color: #ff00ff; box-shadow: 0 10px 25px rgba(255, 0, 255, 0.4); }
-        .icon[title="MERLIN MANDATES"]:hover { border-color: var(--p); box-shadow: 0 10px 25px rgba(188, 19, 254, 0.4); }
-        .icon[title="ZEUS V HADES"]:hover { border-color: var(--g); box-shadow: 0 10px 25px rgba(57, 255, 20, 0.4); }
-        .icon[title="STARBLOOD"]:hover { border-color: #ff3366; box-shadow: 0 10px 25px rgba(255, 51, 102, 0.4); }
-        .icon[title="OLYMPIAN CHESS"]:hover { border-color: #ffcc00; box-shadow: 0 10px 25px rgba(255, 204, 0, 0.4); }
-        .icon[title="RAPTOR RUSH"]:hover { border-color: #00ffcc; box-shadow: 0 10px 25px rgba(0, 255, 204, 0.4); }
-        .icon[title="AIR HOCKEY"]:hover { border-color: var(--g); box-shadow: 0 10px 25px rgba(57, 255, 20, 0.4); }
-        .icon[title="ZEUS PROTOCOL"]:hover { border-color: var(--cyber-blue); box-shadow: 0 10px 25px rgba(0, 243, 255, 0.4); }
-        .icon[title="PROMETHEUS"]:hover { border-color: #ff00ff; box-shadow: 0 10px 25px rgba(255, 0, 255, 0.4); }
-
-        /* Immersive Iframe Frame (EMBEDDED ABOVE DOCK) */
-        #holoframe {
-            display: none; 
-            position: fixed; 
-            top: env(safe-area-inset-top, 20px); /* Pinned near top */
-            left: 15px; 
-            right: 15px; 
-            bottom: calc(40vh + 40px); /* Automatically leaves space for the 40vh dock */
-            background: rgba(0, 0, 0, 0.45); 
-            backdrop-filter: blur(4px); 
-            z-index: 5000; 
-            flex-direction: column;
-            border: 1px solid rgba(188, 19, 254, 0.3); /* Subtle neon border */
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-        }
-        .frame-header {
-            padding: 15px 20px; display: flex; justify-content: space-between;
-            background: rgba(17, 17, 17, 0.7); 
-            border-bottom: 1px solid var(--p);
-            color: var(--g); font-size: 0.8rem; letter-spacing: 3px;
-        }
-        #nexus-iframe { flex: 1; border: none; width: 100%; height: 100%; background: transparent; display: block; }
-        .close-btn { cursor: pointer; color: #ff3366; font-weight: bold; border: 1px solid #ff3366; padding: 2px 10px; border-radius: 4px; }
+        /* Improved Holoframe Layout */
+        #holoframe { display: none; position: fixed; top: 10px; left: 10px; right: 10px; bottom: 90px; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); z-index: 5000; flex-direction: column; border: 1px solid var(--p); border-radius: 10px; overflow: hidden; }
+        #holoframe.maximized { top: 0; left: 0; right: 0; bottom: 0; border-radius: 0; }
+        .frame-header { padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; background: #111; border-bottom: 1px solid var(--p); color: var(--g); font-size: 0.7rem; }
+        #nexus-iframe { flex: 1; border: none; width: 100%; height: 100%; background: transparent; }
+        .btn-grp { display: flex; gap: 10px; }
+        .close-btn, .max-btn { cursor: pointer; font-weight: bold; border: 1px solid #ff3366; padding: 2px 8px; border-radius: 4px; }
+        .max-btn { border-color: var(--cyber-blue); color: var(--cyber-blue); }
     </style>
 </head>
-<body spellcheck="false">
+<body>
 
 <div class="video-container">
-    <video id="landing-video" muted playsinline loop>
-        <source src="https://www.dropbox.com/scl/fi/eq3c5xrlrqmsqs5poyl3u/Make_the_words_.mp4?rlkey=5p5pysbnhwt1lyq2et9blvgks&raw=1" type="video/mp4">
-    </video>
-
-    <video id="bg-video" muted playsinline loop>
-        <source src="https://www.dropbox.com/scl/fi/13paev0odpa61tpjpm9n2/Image_To_Video-9.mp4?rlkey=6a07rmjobwagvwaq9z3029ge8&raw=1" type="video/mp4">
-    </video>
+    <video id="landing-video" muted playsinline loop><source src="https://www.dropbox.com/scl/fi/eq3c5xrlrqmsqs5poyl3u/Make_the_words_.mp4?rlkey=5p5pysbnhwt1lyq2et9blvgks&raw=1" type="video/mp4"></video>
+    <video id="bg-video" muted playsinline loop><source src="https://www.dropbox.com/scl/fi/13paev0odpa61tpjpm9n2/Image_To_Video-9.mp4?rlkey=6a07rmjobwagvwaq9z3029ge8&raw=1" type="video/mp4"></video>
 </div>
 
 <div id="landing-gate">
@@ -177,85 +52,43 @@
 </div>
 
 <div id="dock">
-    <div class="icon" onclick="launch('stake.html', 'STAKE_VAULT')" title="STAKE VAULT" style="border-color: var(--cyber-blue); color: var(--cyber-blue);">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18v18H3V3zm8 14h2v-2h-2v2zm2-4.5V13h-2v-1.5c0-1.1.9-2 2-2 .55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 1.86-1.28 3.41-3 3.86z"/></svg>
-    </div>
-    
-    <div class="icon" onclick="launch('https://neon-racer-ecru.vercel.app/', 'NEON_STAR_RACER')" title="NEON RACER" style="border-color: #ff00ff; color: #ff00ff;">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-    </div>
-    
-    <div class="icon" onclick="launch('https://merlin-mandates.vercel.app/', 'MERLIN_MANDATES')" title="MERLIN MANDATES" style="border-color: var(--p); color: var(--p);">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12h20c0-5.52-4.48-10-10-10zm-2 11h4v7h-4v-7z"/></svg>
-    </div>
-    
-    <div class="icon" onclick="launch('https://zeus-v-hades.vercel.app/', 'ZEUS_V_HADES')" title="ZEUS V HADES" style="border-color: var(--g); color: var(--g);">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2-13h4v10h-4z"/></svg>
-    </div>
-
-    <div class="icon" onclick="launch('https://starblood.vercel.app/', 'STARBLOOD')" title="STARBLOOD" style="border-color: #ff3366; color: #ff3366;">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.52 3.58 8.2 8 8.2s8-3.68 8-8.2c0-3.32-2.67-7.25-8-11.8zm0 16c-2.21 0-4-1.79-4-4 0-2.05 1.5-4.22 4-6.5 2.5 2.28 4 4.45 4 6.5 0 2.21-1.79 4-4 4z"/></svg>
-    </div>
-
-    <div class="icon" onclick="launch('https://olympian-chess.vercel.app/', 'OLYMPIAN_CHESS')" title="OLYMPIAN CHESS" style="border-color: #ffcc00; color: #ffcc00;">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 16h14v2H5zm14-9l-3 4-4-5-4 5-3-4v7h14v-7z"/></svg>
-    </div>
-
-    <div class="icon" onclick="launch('https://raptor-rush.vercel.app/', 'RAPTOR_RUSH')" title="RAPTOR RUSH" style="border-color: #00ffcc; color: #00ffcc;">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8 2 4 8 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8c0-6-4-12-8-12z"/></svg>
-    </div>
-
-    <div class="icon" onclick="launch('https://set-air-hockey.vercel.app/', 'SET_AIR_HOCKEY')" title="AIR HOCKEY" style="border-color: var(--g); color: var(--g);">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-10 10v4h20v-4a10 10 0 0 0-10-10zm0 2a8 8 0 0 1 7.93 7H4.07A8 8 0 0 1 12 4zm-8 9h16v1H4v-1z"/></svg>
-    </div>
-
-    <div class="icon" onclick="launch('https://zeus-protocol-deep-space-defence.vercel.app/', 'ZEUS_PROTOCOL')" title="ZEUS PROTOCOL" style="border-color: var(--cyber-blue); color: var(--cyber-blue);">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
-    </div>
-
-    <div class="icon" onclick="launch('https://prometheus-iota-livid.vercel.app/', 'PROMETHEUS')" title="PROMETHEUS" style="border-color: #ff00ff; color: #ff00ff;">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 14h20v6H2zM4 12h16V4H4v8zm2-6h12v4H6V6z"/></svg>
-    </div>
+    <div class="icon" onclick="launch('stake.html', 'STAKE_VAULT')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18v18H3V3zm8 14h2v-2h-2v2zm2-4.5V13h-2v-1.5c0-1.1.9-2 2-2 .55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 1.86-1.28 3.41-3 3.86z"/></svg></div>
+    <div class="icon" onclick="launch('https://neon-racer-ecru.vercel.app/', 'NEON_RACER')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+    <div class="icon" onclick="launch('https://merlin-mandates.vercel.app/', 'MERLIN_MANDATES')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12h20c0-5.52-4.48-10-10-10zm-2 11h4v7h-4v-7z"/></svg></div>
+    <div class="icon" onclick="launch('https://zeus-v-hades.vercel.app/', 'ZEUS_V_HADES')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2-13h4v10h-4z"/></svg></div>
+    <div class="icon" onclick="launch('https://starblood.vercel.app/', 'STARBLOOD')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.52 3.58 8.2 8 8.2s8-3.68 8-8.2c0-3.32-2.67-7.25-8-11.8zm0 16c-2.21 0-4-1.79-4-4 0-2.05 1.5-4.22 4-6.5 2.5 2.28 4 4.45 4 6.5 0 2.21-1.79 4-4 4z"/></svg></div>
+    <div class="icon" onclick="launch('https://olympian-chess.vercel.app/', 'OLYMPIAN_CHESS')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 16h14v2H5zm14-9l-3 4-4-5-4 5-3-4v7h14v-7z"/></svg></div>
+    <div class="icon" onclick="launch('https://raptor-rush.vercel.app/', 'RAPTOR_RUSH')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8 2 4 8 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8c0-6-4-12-8-12z"/></svg></div>
+    <div class="icon" onclick="launch('https://set-air-hockey.vercel.app/', 'SET_AIR_HOCKEY')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-10 10v4h20v-4a10 10 0 0 0-10-10zm0 2a8 8 0 0 1 7.93 7H4.07A8 8 0 0 1 12 4zm-8 9h16v1H4v-1z"/></svg></div>
 </div>
 
 <div id="holoframe">
     <div class="frame-header">
-        <span id="mod-title">COLOSSUS_OS // LINK_ACTIVE</span>
-        <span class="close-btn" onclick="closeFrame()">DISCONNECT [X]</span>
+        <span id="mod-title">LINK_ACTIVE</span>
+        <div class="btn-grp">
+            <span class="max-btn" id="max-btn" onclick="toggleMax()">[+]</span>
+            <span class="close-btn" onclick="closeFrame()">[X]</span>
+        </div>
     </div>
-    <iframe id="nexus-iframe" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals" allow="autoplay; fullscreen;"></iframe>
+    <iframe id="nexus-iframe" allow="autoplay; fullscreen;"></iframe>
 </div>
 
 <script>
-    const landVid = document.getElementById('landing-video');
-    const mainVid = document.getElementById('bg-video');
-    const gate = document.getElementById('landing-gate');
-
-    function stageOne() {
-        landVid.play();
-        document.getElementById('btn-stage-1').style.display = 'none';
-        document.getElementById('btn-stage-2').style.display = 'block';
-        gate.style.background = 'rgba(0,0,0,0.2)';
-    }
-
+    function stageOne() { document.getElementById('btn-stage-1').style.display = 'none'; document.getElementById('btn-stage-2').style.display = 'block'; }
     function stageTwo() {
-        mainVid.play();
-        landVid.style.opacity = '0';
-        mainVid.style.opacity = '1';
-        gate.style.opacity = '0';
-
-        setTimeout(() => {
-            gate.style.display = 'none';
-            landVid.pause(); 
-            document.getElementById('dock').style.opacity = '1';
-            document.getElementById('dock').style.pointerEvents = 'auto';
-            
-            // AUTO-LAUNCH OLYMPUS COLOSSEUM INTO TOP WINDOW
-            launch('INJECT_OLYMPUS', 'OLYMPUS COLOSSEUM');
-        }, 1200);
+        document.getElementById('bg-video').play();
+        document.getElementById('landing-gate').style.opacity = '0';
+        setTimeout(() => { document.getElementById('landing-gate').style.display = 'none'; document.getElementById('dock').style.opacity = '1'; document.getElementById('dock').style.pointerEvents = 'auto'; launch('INJECT_OLYMPUS', 'OLYMPUS COLOSSEUM'); }, 1200);
     }
 
-    /* INJECTED OLYMPUS CODE BUNDLE - ADAPTED FOR DEVICE SCALING & DICTIONARY/SELECT PREVENTION */
+    function toggleMax() {
+        const hf = document.getElementById('holoframe');
+        const btn = document.getElementById('max-btn');
+        hf.classList.toggle('maximized');
+        btn.innerText = hf.classList.contains('maximized') ? '[-]' : '[+]';
+    }
+
+    /* INJECTED OLYMPUS CODE BUNDLE - WITH VIDEO HERO */
     const olympusCode = `<!DOCTYPE html>
     <html lang="en" translate="no">
     <head>
@@ -264,20 +97,10 @@
         <meta name="google" content="notranslate">
         <style>
             * { margin: 0; padding: 0; box-sizing: border-box; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
-            body, html {
-                background-color: transparent; 
-                overflow: hidden; width: 100vw; height: 100vh;
-                touch-action: none;
-            }
+            body, html { background-color: transparent; overflow: hidden; width: 100vw; height: 100vh; touch-action: none; }
             #arcade-banner-container { width: 100%; height: 100%; position: relative; }
-            #bg-video {
-                position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-                object-fit: cover; opacity: 0.45; z-index: 0;
-            }
-            #dk-canvas {
-                position: absolute; top: 0; left: 0; display: block;
-                width: 100%; height: 100%; background-color: transparent; z-index: 1; 
-            }
+            #bg-video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.45; z-index: 0; }
+            #dk-canvas { position: absolute; top: 0; left: 0; display: block; width: 100%; height: 100%; background-color: transparent; z-index: 1; }
         </style>
     </head>
     <body spellcheck="false">
@@ -285,11 +108,15 @@
             <video id="bg-video" autoplay loop muted playsinline>
                 <source src="https://files.catbox.moe/871o13.mp4" type="video/mp4">
             </video>
+            <video id="hero-vid" autoplay loop muted playsinline crossorigin="anonymous" style="display:none;">
+                <source src="https://files.catbox.moe/u5yrfx.mp4" type="video/mp4">
+            </video>
             <canvas id="dk-canvas"></canvas>
         </div>
         <script>
             const canvas = document.getElementById('dk-canvas');
             const ctx = canvas.getContext('2d');
+            const heroVid = document.getElementById('hero-vid');
 
             function resize() {
                 canvas.width = window.innerWidth;
@@ -317,7 +144,7 @@
 
             const ape = { x: 100, y: 0, throwTimer: 0 };
             const hero = {
-                x: 100, width: 22, height: 34, speed: 3, direction: 1,
+                x: 100, width: 36, height: 36, speed: 3, direction: 1, /* Tweaked width/height for video ratio */
                 isJumping: false, yVelocity: 0, gravity: 0.6,
                 jumpStrength: -12, isDead: false, deadTimer: 0
             };
@@ -344,8 +171,7 @@
             function drawGirders() {
                 ctx.lineCap = 'butt';
                 girders.forEach(g => {
-                    ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
-                    ctx.shadowBlur = 10; ctx.shadowOffsetY = 8;
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.6)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 8;
                     const grad = ctx.createLinearGradient(0, g.yLeft - 10, 0, g.yLeft + 10);
                     grad.addColorStop(0, '#e63946'); grad.addColorStop(0.5, '#a81c25'); grad.addColorStop(1, '#5e0b12'); 
                     ctx.lineWidth = 16; ctx.strokeStyle = grad;
@@ -362,29 +188,21 @@
                 const centerY = ape.y + 45;
                 const furGrad = ctx.createRadialGradient(centerX - 10, centerY - 10, 5, centerX, centerY, 50);
                 furGrad.addColorStop(0, '#5C4033'); furGrad.addColorStop(1, '#2B170B'); 
-                ctx.fillStyle = furGrad;
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-                ctx.shadowBlur = 8; ctx.shadowOffsetY = 5;
+                ctx.fillStyle = furGrad; ctx.shadowColor = 'rgba(0, 0, 0, 0.5)'; ctx.shadowBlur = 8; ctx.shadowOffsetY = 5;
                 
                 ctx.beginPath(); ctx.arc(centerX, centerY + 10, 36, 0, Math.PI * 2); ctx.fill();
                 ctx.beginPath(); ctx.arc(centerX, centerY - 15, 30, 0, Math.PI * 2); ctx.fill();
                 ctx.shadowColor = 'transparent'; 
                 ctx.beginPath(); ctx.arc(centerX, centerY - 45, 20, 0, Math.PI * 2); ctx.fill();
                 
-                ctx.fillStyle = '#D2B48C';
-                ctx.beginPath(); ctx.ellipse(centerX, centerY - 42, 18, 14, 0, 0, Math.PI * 2); ctx.fill();
-                
-                ctx.fillStyle = '#000';
-                ctx.beginPath(); ctx.arc(centerX - 7, centerY - 46, 2.5, 0, Math.PI * 2); ctx.arc(centerX + 7, centerY - 46, 2.5, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#D2B48C'; ctx.beginPath(); ctx.ellipse(centerX, centerY - 42, 18, 14, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(centerX - 7, centerY - 46, 2.5, 0, Math.PI * 2); ctx.arc(centerX + 7, centerY - 46, 2.5, 0, Math.PI * 2); ctx.fill();
                 
                 ctx.strokeStyle = '#2B170B'; ctx.lineWidth = 3.5; ctx.lineCap = 'round';
                 ctx.beginPath(); ctx.moveTo(centerX - 14, centerY - 50); ctx.lineTo(centerX - 3, centerY - 47); ctx.moveTo(centerX + 14, centerY - 50); ctx.lineTo(centerX + 3, centerY - 47); ctx.stroke();
+                ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(centerX, centerY - 36, 8, 0, Math.PI, false); ctx.stroke();
                 
-                ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
-                ctx.beginPath(); ctx.arc(centerX, centerY - 36, 8, 0, Math.PI, false); ctx.stroke();
-                
-                ctx.fillStyle = '#8B5A2B';
-                ctx.beginPath(); ctx.arc(centerX - 16, centerY - 12, 16, 0, Math.PI * 2); ctx.arc(centerX + 16, centerY - 12, 16, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#8B5A2B'; ctx.beginPath(); ctx.arc(centerX - 16, centerY - 12, 16, 0, Math.PI * 2); ctx.arc(centerX + 16, centerY - 12, 16, 0, Math.PI * 2); ctx.fill();
                 
                 ctx.lineWidth = 20; ctx.strokeStyle = furGrad; ctx.lineCap = 'round';
                 ctx.beginPath(); ctx.moveTo(centerX - 32, centerY - 25); ctx.lineTo(centerX - 50, centerY + 25); ctx.stroke();
@@ -420,9 +238,7 @@
                     if ((direction === 1 && b.x > canvas.width - b.radius) || (direction === -1 && b.x < b.radius)) {
                         if (b.level < girders.length - 1) {
                             b.level++; b.x = direction === 1 ? canvas.width - b.radius - 2 : b.radius + 2; 
-                        } else {
-                            barrels.splice(i, 1); 
-                        }
+                        } else { barrels.splice(i, 1); }
                     }
                 }
             }
@@ -463,13 +279,21 @@
                 currentHeroY = baseHeroY + yOffset;
                 if (currentHeroY >= baseHeroY && hero.isJumping) { currentHeroY = baseHeroY; hero.isJumping = false; hero.yVelocity = 0; }
 
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.4)'; ctx.shadowBlur = 4; ctx.shadowOffsetY = 3;
-                ctx.fillStyle = '#fcd6b4'; ctx.beginPath(); ctx.arc(hero.x + hero.width/2, currentHeroY + 5, 8, 0, Math.PI * 2); ctx.fill();
-                const shirtGrad = ctx.createLinearGradient(hero.x, 0, hero.x + hero.width, 0); shirtGrad.addColorStop(0, '#ff4d4d'); shirtGrad.addColorStop(1, '#b30000');
-                ctx.fillStyle = shirtGrad; ctx.beginPath(); ctx.roundRect(hero.x + 2, currentHeroY + 12, hero.width - 4, 12, [3]); ctx.fill();
-                const pantsGrad = ctx.createLinearGradient(hero.x, 0, hero.x + hero.width, 0); pantsGrad.addColorStop(0, '#4d4dff'); pantsGrad.addColorStop(1, '#0000b3');
-                ctx.fillStyle = pantsGrad; ctx.beginPath(); ctx.roundRect(hero.x + 2, currentHeroY + 22, hero.width - 4, 12, [2]); ctx.fill();
-                ctx.fillStyle = '#ff4d4d'; ctx.beginPath(); ctx.roundRect(hero.x + (hero.direction === 1 ? 8 : -2), currentHeroY, 14, 4, [2]); ctx.fill();
+                // --- DRAW VIDEO HERO ---
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.4)'; 
+                ctx.shadowBlur = 4; 
+                ctx.shadowOffsetY = 3;
+                
+                ctx.save();
+                if (hero.direction === -1) {
+                    ctx.translate(hero.x + hero.width, 0);
+                    ctx.scale(-1, 1);
+                    if (heroVid.readyState >= 2) ctx.drawImage(heroVid, 0, currentHeroY, hero.width, hero.height);
+                } else {
+                    if (heroVid.readyState >= 2) ctx.drawImage(heroVid, hero.x, currentHeroY, hero.width, hero.height);
+                }
+                ctx.restore();
+                
                 ctx.shadowColor = 'transparent';
             }
 
@@ -485,7 +309,6 @@
     </body>
     </html>`;
 
-    // CRITICAL FIX: Properly swapping between string injections and real URLs without breaking the browser frame
     function launch(url, title) {
         const hf = document.getElementById('holoframe');
         const ifr = document.getElementById('nexus-iframe');
@@ -495,8 +318,8 @@
             ifr.removeAttribute('src');
             ifr.srcdoc = olympusCode;
         } else {
-            ifr.removeAttribute('srcdoc'); // Removes the blank template block
-            ifr.src = url; // Connects directly to external sites
+            ifr.removeAttribute('srcdoc'); 
+            ifr.src = url; 
         }
         
         hf.style.display = 'flex';
@@ -507,7 +330,6 @@
         const ifr = document.getElementById('nexus-iframe');
         hf.style.display = 'none';
         
-        // Clean out to prevent audio playing in the background
         ifr.removeAttribute('srcdoc');
         ifr.removeAttribute('src'); 
     }
