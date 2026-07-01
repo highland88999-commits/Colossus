@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta name="google" content="notranslate" />
-    <title>OLYMPUS | COLOSSEUM </title>
-    <meta property="og:title" content="NEXUS | COLOSSEUM" />
+    <title>Colossus | Artemis Nexus</title>
+    <meta property="og:title" content="COLOSSUS OS | Nexus Vortex" />
     <meta property="og:description" content="[STATION_IDENTIFIED: NEXUS_VORTEX] :: Initializing Colossus Environment. Secure connection established. Accessing decentralized vaults and neon-realms." />
     <meta name="description" content="Secure gateway to the Artemis Nexus. Initialize connection to deploy the Colossus environment." />
     <style>
@@ -132,15 +132,25 @@
         .icon[title="ZEUS PROTOCOL"]:hover { border-color: var(--cyber-blue); box-shadow: 0 10px 25px rgba(0, 243, 255, 0.4); }
         .icon[title="PROMETHEUS"]:hover { border-color: #ff00ff; box-shadow: 0 10px 25px rgba(255, 0, 255, 0.4); }
 
-        /* Immersive Iframe Frame (SEMI-TRANSPARENT 45%) */
+        /* Immersive Iframe Frame (EMBEDDED ABOVE DOCK) */
         #holoframe {
-            display: none; position: fixed; inset: 0; 
+            display: none; 
+            position: fixed; 
+            top: env(safe-area-inset-top, 20px); /* Pinned near top */
+            left: 15px; 
+            right: 15px; 
+            bottom: calc(40vh + 40px); /* Automatically leaves space for the 40vh dock */
             background: rgba(0, 0, 0, 0.45); 
             backdrop-filter: blur(4px); 
-            z-index: 5000; flex-direction: column;
+            z-index: 5000; 
+            flex-direction: column;
+            border: 1px solid rgba(188, 19, 254, 0.3); /* Subtle neon border */
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
         }
         .frame-header {
-            padding: 15px 25px; display: flex; justify-content: space-between;
+            padding: 15px 20px; display: flex; justify-content: space-between;
             background: rgba(17, 17, 17, 0.7); 
             border-bottom: 1px solid var(--p);
             color: var(--g); font-size: 0.8rem; letter-spacing: 3px;
@@ -240,7 +250,7 @@
             document.getElementById('dock').style.opacity = '1';
             document.getElementById('dock').style.pointerEvents = 'auto';
             
-            // AUTO-LAUNCH OLYMPUS COLOSSEUM INTO HOLOFRAME
+            // AUTO-LAUNCH OLYMPUS COLOSSEUM INTO TOP WINDOW
             launch('INJECT_OLYMPUS', 'OLYMPUS COLOSSEUM');
         }, 1200);
     }
@@ -257,7 +267,7 @@
             body, html {
                 background-color: transparent; 
                 overflow: hidden; width: 100vw; height: 100vh;
-                touch-action: none; /* Prevents swiping actions inside iframe */
+                touch-action: none;
             }
             #arcade-banner-container { width: 100%; height: 100%; position: relative; }
             #bg-video {
@@ -475,17 +485,18 @@
     </body>
     </html>`;
 
+    // CRITICAL FIX: Properly swapping between string injections and real URLs without breaking the browser frame
     function launch(url, title) {
         const hf = document.getElementById('holoframe');
         const ifr = document.getElementById('nexus-iframe');
         document.getElementById('mod-title').innerText = "COLOSSUS_LINK :: " + title;
         
         if (url === 'INJECT_OLYMPUS') {
-            ifr.src = '';
+            ifr.removeAttribute('src');
             ifr.srcdoc = olympusCode;
         } else {
-            ifr.srcdoc = '';
-            ifr.src = url;
+            ifr.removeAttribute('srcdoc'); // Removes the blank template block
+            ifr.src = url; // Connects directly to external sites
         }
         
         hf.style.display = 'flex';
@@ -495,8 +506,10 @@
         const hf = document.getElementById('holoframe');
         const ifr = document.getElementById('nexus-iframe');
         hf.style.display = 'none';
-        ifr.src = ''; 
-        ifr.srcdoc = ''; 
+        
+        // Clean out to prevent audio playing in the background
+        ifr.removeAttribute('srcdoc');
+        ifr.removeAttribute('src'); 
     }
 </script>
 
