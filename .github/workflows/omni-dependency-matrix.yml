@@ -1,0 +1,65 @@
+name: Omni-Node Dependency Matrix
+
+# 1. THE TRIGGERS
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch: # Allows manual trigger from Neon Shell
+
+jobs:
+  dependency_audit_and_install:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: ⚙️ Setup Node.js (v18)
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # Step 1: Universal Installer
+      # Intelligently detects if the repo uses npm, yarn, or has no package.json at all
+      - name: 📦 Universal Dependency Resolution
+        run: |
+          echo "Scanning repository for dependency maps..."
+          if [ -f "package-lock.json" ]; then
+            echo "Found package-lock.json. Running strict pipeline install (npm ci)..."
+            npm ci
+          elif [ -f "yarn.lock" ]; then
+            echo "Found yarn.lock. Running yarn install..."
+            npm install -g yarn
+            yarn install --frozen-lockfile
+          elif [ -f "package.json" ]; then
+            echo "Found package.json without lockfile. Generating map and installing..."
+            npm install
+          else
+            echo "[WARN] No package.json found. Initializing empty Node project..."
+            npm init -y
+          fi
+
+      # Step 2: The Deep File Scan
+      # Parses all .js, .jsx, .ts, files. Flags missing packages & unused bloat.
+      - name: 🕵️ Deep Code Inspection (DepCheck)
+        run: |
+          echo "Initiating Deep AST Scan across all code files..."
+          echo "Checking for modules required in code but missing from package.json..."
+          
+          # Run depcheck. The || true ensures the workflow doesn't completely crash 
+          # if it finds missing deps, allowing you to read the advice report.
+          npx depcheck --skip-missing=false || true
+
+      # Step 3: Security Check
+      # Scans the installed dependency tree for known CVEs
+      - name: 🛡️ Dependency Security Audit
+        run: |
+          echo "Scanning installed dependencies for security vulnerabilities..."
+          npm audit --audit-level=high || true
+
+      # Step 4: Safety Build Check
+      # Proves that the code actually compiles with the dependencies it has
+      - name: 🛠️ Execute Build Integrity Check
+        run: npm run build --if-present
