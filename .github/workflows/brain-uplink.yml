@@ -1,0 +1,65 @@
+name: Brain Telemetry & Node Uplink
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  telemetry-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Log Activity & Sync Node to Supabase
+        run: |
+          REPO_NAME="${{ github.event.repository.name }}"
+          COMMIT_MSG=$(git log -1 --pretty=%B | tr '\n' ' ')
+          COMMIT_AUTHOR="${{ github.actor }}"
+          COMMIT_SHA="${{ github.sha }}"
+          
+          # Detect if commit was executed by Gemini Brain
+          IS_GEMINI="false"
+          if [[ "$COMMIT_MSG" == *"[Brain Uplink]"* ]]; then
+            IS_GEMINI="true"
+          fi
+
+          # Construct Telemetry Payload
+          JSON_PAYLOAD=$(jq -n \
+            --arg repo "$REPO_NAME" \
+            --arg author "$COMMIT_AUTHOR" \
+            --arg msg "$COMMIT_MSG" \
+            --arg sha "$COMMIT_SHA" \
+            --arg is_gemini "$IS_GEMINI" \
+            '{
+              repository_name: $repo,
+              action_type: (if $is_gemini == "true" then "gemini_mutation" else "git_push" end),
+              details: {
+                author: $author,
+                commit_message: $msg,
+                commit_sha: $sha,
+                source: (if $is_gemini == "true" then "Gemini Autonomous Brain" else "Developer Push" end)
+              }
+            }')
+
+          # Send Activity Log to Supabase
+          curl -X POST "https://amulgdbdvxpikpmldyoq.supabase.co/rest/v1/central_telemetry" \
+            -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtdWxnZGJkdnhwaWtwbWxkeW9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0MDU3MzgsImV4cCI6MjEwMTk4MTczOH0.0eZ3SfWhUEzSLpDDKEE_3vp5siXF00akRp5jX1dM-dA" \
+            -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtdWxnZGJkdnhwaWtwbWxkeW9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0MDU3MzgsImV4cCI6MjEwMTk4MTczOH0.0eZ3SfWhUEzSLpDDKEE_3vp5siXF00akRp5jX1dM-dA" \
+            -H "Content-Type: application/json" \
+            -H "Prefer: return=minimal" \
+            -d "[$JSON_PAYLOAD]"
+
+          # Auto-register Repository Node into connected_repos
+          NODE_PAYLOAD=$(jq -n --arg repo "$REPO_NAME" '{repo_name: $repo, status: "active"}')
+          
+          curl -X POST "https://amulgdbdvxpikpmldyoq.supabase.co/rest/v1/connected_repos" \
+            -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtdWxnZGJkdnhwaWtwbWxkeW9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0MDU3MzgsImV4cCI6MjEwMTk4MTczOH0.0eZ3SfWhUEzSLpDDKEE_3vp5siXF00akRp5jX1dM-dA" \
+            -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtdWxnZGJkdnhwaWtwbWxkeW9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0MDU3MzgsImV4cCI6MjEwMTk4MTczOH0.0eZ3SfWhUEzSLpDDKEE_3vp5siXF00akRp5jX1dM-dA" \
+            -H "Content-Type: application/json" \
+            -H "Prefer: resolution=merge-duplicates" \
+            -d "[$NODE_PAYLOAD]"
