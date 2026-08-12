@@ -7,6 +7,76 @@
     <meta property="og:title" content="OLYMPUS COLOSSEUM | Nexus Vortex" />
     <meta property="og:description" content="[STATION_IDENTIFIED: NEXUS_VORTEX] :: Initializing Colossus Environment. Secure connection established. Accessing decentralized vaults and neon-realms." />
     <meta name="description" content="Secure gateway to the Artemis Nexus. Initialize connection to deploy the Colossus environment." />
+    
+    <!-- OMEGA MIND TELEMETRY UPLINK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+      (function() {
+        const SUPABASE_URL = 'https://amulgdbdvxpikpmldyoq.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtdWxnZGJkdnhwaWtwbWxkeW9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0MDU3MzgsImV4cCI6MjEwMTk4MTczOH0.0eZ3SfWhUEzSLpDDKEE_3vp5siXF00akRp5jX1dM-dA';
+        
+        // Auto-detect repository name or fallback to domain
+        const REPO_NAME = window.OMEGA_REPO_NAME || window.location.hostname || 'Unknown-Node';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let clientIP = 'Detecting...';
+
+        // 1. Fetch Client IP
+        fetch('https://api.ipify.org?format=json')
+          .then(res => res.json())
+          .then(data => { clientIP = data.ip; })
+          .catch(() => { clientIP = 'IP_UNKNOWN'; });
+
+        // 2. Core Telemetry Logging Function
+        window.logBrainAction = async function(actionType, details = {}) {
+          try {
+            await supabase.from('central_telemetry').insert([{
+              repository_name: REPO_NAME,
+              action_type: actionType,
+              details: {
+                ...details,
+                ip_address: clientIP,
+                url: window.location.href,
+                user_agent: navigator.userAgent,
+                timestamp: new Date().toISOString()
+              }
+            }]);
+          } catch (err) {
+            console.error('[Brain Uplink Failed]:', err);
+          }
+        };
+
+        // 3. Register Node into Target Vector Dropdown
+        async function registerNode() {
+          try {
+            await supabase.from('connected_repos').upsert(
+              { repo_name: REPO_NAME, status: 'active' },
+              { onConflict: 'repo_name' }
+            );
+          } catch (e) {}
+        }
+
+        // 4. Auto-Log Page Load
+        window.addEventListener('load', () => {
+          registerNode();
+          window.logBrainAction('page_load', { title: document.title });
+        });
+
+        // 5. Auto-Log User Interactions & Clicks
+        document.addEventListener('click', (e) => {
+          const target = e.target.closest('button, a, input[type="submit"], select');
+          if (target) {
+            window.logBrainAction('user_click', {
+              element: target.tagName,
+              id: target.id || null,
+              class: target.className || null,
+              text: target.innerText ? target.innerText.substring(0, 50) : null
+            });
+          }
+        }, true);
+      })();
+    </script>
+
     <style>
         :root { 
             --p: #bc13fe; 
